@@ -8,7 +8,7 @@ description: >
 
 # Playwright Test Author
 
-Use this skill to write clean, reliable, and maintainable tests with :contentReference[oaicite:0]{index=0}.
+Use this skill to write clean, reliable, and maintainable Playwright tests.
 
 ## Goals
 

@@ -1,6 +1,17 @@
 # Hooks Overview
 
-This directory contains lightweight claude CLI hook scripts for visibility, safety reminders, and stack-specific context injection.
+**Status: not currently active.** These scripts aren't wired into a real Claude Code hooks
+configuration. Real Claude Code hooks are registered under the `hooks` key in `.claude/settings.json`
+(or `.claude/settings.local.json`), keyed by event name (e.g. `PreToolUse`, `PostToolUse`, `Stop`), and
+each hook command receives its event data as JSON on stdin. These scripts instead gate on a
+`claude_CLI` / `claude_TOOL_NAME` env-var scheme that Claude Code doesn't set, and the settings file
+that referenced them (`.claude/agent/settings.json`) lived outside any path Claude Code reads, so
+nothing here has ever actually fired.
+
+Kept as reference/inspiration for what a real hook set could do — treat the descriptions below as a
+spec to reimplement against the real stdin-JSON interface, not as active behavior.
+
+This directory contains lightweight hook script drafts for visibility, safety reminders, and stack-specific context injection.
 
 These hooks are intentionally advisory. They print short messages to stderr and avoid heavy logic so they remain fast and predictable.
 

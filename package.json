@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "generate": "node src/generatePlan.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:report": "playwright test && npm run allure:generate",
+    "allure:generate": "allure generate ./allure-results --output ./allure-report",
+    "allure:open": "allure open ./allure-report"
   },
   "repository": {
     "type": "git",
@@ -25,6 +28,8 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.0"
+    "@playwright/test": "^1.62.0",
+    "allure": "^3.14.3",
+    "allure-playwright": "^3.10.2"
   }
 }

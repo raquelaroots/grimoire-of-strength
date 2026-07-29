@@ -6,3 +6,5 @@ data/*.sqlite-shm
 *.db
 test-results/
 playwright-report/
+allure-results/
+allure-report/

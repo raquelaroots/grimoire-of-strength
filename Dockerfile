@@ -1,19 +1,31 @@
-FROM node:22-bookworm-slim
-
+# ---- builder: installs deps, compiles better-sqlite3's native binding ----
+FROM node:22-alpine AS builder
 WORKDIR /app
 
-# better-sqlite3's bundled prebuilt binary needs glibc >= 2.33 (bookworm has
-# 2.36; the older bullseye's 2.31 fails to dlopen it) and Node >= 22. Keep a
-# toolchain too in case a future bump ever forces a from-source rebuild.
-RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ \
-    && rm -rf /var/lib/apt/lists/*
+# better-sqlite3 unconditionally runs node-gyp on install (its binding.gyp
+# triggers this regardless of the bundled prebuilds), so a compiler toolchain
+# is required at build time. It's confined to this stage only.
+RUN apk add --no-cache python3 make g++
 
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-COPY . .
-RUN mkdir -p data
+# ---- runtime: slim image, no compiler toolchain, non-root user ----
+FROM node:22-alpine
+WORKDIR /app
 
+RUN addgroup -S ritual && adduser -S ritual -G ritual
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY package*.json ./
+COPY server.js ./
+COPY src ./src
+COPY public ./public
+COPY custom-workout-plan.md ./
+
+RUN mkdir -p data && chown -R ritual:ritual /app
+
+USER ritual
 EXPOSE 3000
 ENV PORT=3000
 

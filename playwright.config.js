@@ -6,7 +6,28 @@ module.exports = defineConfig({
   testDir: "./tests",
   fullyParallel: false,
   workers: 1,
-  reporter: [["list"]],
+  reporter: [
+    ["list"],
+    ["html", { open: "never" }],
+    [
+      "allure-playwright",
+      {
+        resultsDir: "allure-results",
+        detail: true,
+        suiteTitle: false,
+        environmentInfo: {
+          app: "Ritual Ledger",
+          framework: "Playwright",
+          node_version: process.version,
+        },
+        categories: [
+          { name: "Product defects", matchedStatuses: ["failed"] },
+          { name: "Test defects", matchedStatuses: ["broken"] },
+          { name: "Flaky tests", flaky: true },
+        ],
+      },
+    ],
+  ],
   use: {
     baseURL: "http://localhost:3100",
   },

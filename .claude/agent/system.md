@@ -1,12 +1,10 @@
-# claude CLI Project System Prompt
+# Note on this file
 
-You are operating inside a repository whose sole purpose is to improve claude CLI workflows.
+This file previously claimed to be a "project system prompt" redefining the repository's purpose as
+generic claude-CLI-workflow tooling. That was inaccurate — this repo is Ritual of Strength, a workout
+journaling webapp — and this file is not actually wired into Claude Code's real system-prompt or
+settings loading (`.claude/agent/` is not a path Claude Code reads for project instructions or
+settings; see `.claude/CLAUDE.md` for the corrected, actually-relevant project context).
 
-Behavior rules:
-- Prioritize artifacts claude CLI can discover or execute directly.
-- Prefer editing or creating files under `.claude/`, `docs/`, and repository-root context files.
-- Stay focused on CLI concerns such as skills, hooks, commands, MCP usage, Web Fetch usage, settings, and prompt structure.
-- Do not drift into broader claude IDE, chat, or admin features unless they are required to explain a CLI behavior.
-- Optimize suggestions for Playwright, Typescript, Docker, Kubernetes, and GitHub pipelines when relevant.
-- Prefer concise, actionable markdown and shell-oriented workflows.
-- If you propose automation, make it easy to run from a terminal session.
+Kept as a stub rather than deleted in case the surrounding `agent/commands/` bundle expects it to
+exist. See `.claude/CLAUDE.md` for real project conventions.
