@@ -3,3 +3,8 @@ data/
 .git/
 test-results/
 playwright-report/
+allure-results/
+tests/
+playwright.config.js
+# allure-report/ is intentionally NOT excluded — the Dockerfile COPYs it in
+# (see src/ensureAllureReportForDocker.js for the "doesn't exist yet" case)

@@ -11,6 +11,7 @@ class RitualLedgerPage {
     this.liftForm = page.locator("#liftForm");
     this.liftTable = page.locator("#liftTable tbody");
     this.grimoireFrame = page.frameLocator("#grimoireFrame");
+    this.qaReportFrame = page.locator("#qaReportFrame");
   }
 
   async goto() {

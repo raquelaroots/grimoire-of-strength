@@ -6,4 +6,5 @@ services:
     volumes:
       - ./data:/app/data
       - ./custom-workout-plan.md:/app/custom-workout-plan.md
+      - ./allure-report:/app/allure-report
     restart: unless-stopped

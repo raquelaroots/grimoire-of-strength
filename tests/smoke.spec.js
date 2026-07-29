@@ -158,4 +158,21 @@ test.describe("Ritual Ledger UI", () => {
       await expect(app.grimoireFrame.locator("h1.title")).toHaveText("Grimoire of Strength");
     });
   });
+
+  test.describe("QA Report", () => {
+    test("QA report tab is wired to the served Allure report", async ({ page }) => {
+      await feature("QA Report Serving");
+      await story("App serves its own Allure report");
+      await severity(Severity.MINOR);
+
+      // Content is asserted lightly on purpose: allure-report/ is generated
+      // by this very test run's own reporting step, so on a first-ever run
+      // it may not exist yet when this test executes. We verify the tab and
+      // iframe are correctly wired to the route, not the report's contents.
+      const app = new RitualLedgerPage(page);
+      await app.switchTab("qa");
+      await expect(app.activeView("qa")).toHaveClass(/active/);
+      await expect(app.qaReportFrame).toHaveAttribute("src", "/allure-report/index.html");
+    });
+  });
 });

@@ -1,0 +1,53 @@
+/* Ritual Ledger theme overrides for the Allure "Awesome" report.
+ * Only chrome/accent tokens are restyled here — pass/fail/broken/skipped
+ * status colors and chart palettes are deliberately left as Allure's
+ * defaults, so the report keeps its conventional, unambiguous QA color
+ * language (green=passed, red=failed, etc.) rather than being reskinned
+ * for brand consistency at the cost of readability.
+ */
+
+:root[data-theme="dark"] {
+  --color-bg-canvas: #0a0610;
+  --color-bg-primary: #150c1a;
+  --color-bg-secondary: #1c1121;
+  --color-bg-raised: #1c1121;
+  --color-bg-overlay: rgba(10, 6, 16, 0.72);
+
+  --color-text-primary: #f2e8ef;
+  --color-text-secondary: #cbb8c9;
+  --color-text-muted: #9985a1;
+
+  --color-border-subtle: rgba(242, 232, 239, 0.09);
+  --color-border-default: rgba(242, 232, 239, 0.14);
+  --color-border-medium: rgba(242, 232, 239, 0.2);
+  --color-border-strong: rgba(242, 232, 239, 0.32);
+  --color-border-control: rgba(242, 232, 239, 0.16);
+
+  --color-link-text: #ff2e88;
+  --color-link-text-hover: #ff5ea3;
+  --color-link-text-active: #ff2e88;
+  --color-focus-ring: #ff2e88;
+
+  --color-nav-item-bg-hover: rgba(242, 232, 239, 0.05);
+  --color-nav-item-bg-active: rgba(155, 92, 255, 0.18);
+  --color-nav-item-bg-active-hover: rgba(155, 92, 255, 0.24);
+  --color-nav-item-text-active: #ff8fc4;
+  --color-nav-item-icon-active: #ff8fc4;
+
+  --color-intent-primary-bg: #7a1338;
+  --color-intent-primary-bg-hover: #93173f;
+  --color-intent-primary-bg-active: #6c1130;
+  --color-intent-primary-text: #ff8fc4;
+  --color-intent-primary-on-bg: #ffffff;
+
+  --color-control-bg: rgba(242, 232, 239, 0.06);
+  --color-control-bg-hover: rgba(242, 232, 239, 0.1);
+  --color-control-bg-active: rgba(242, 232, 239, 0.14);
+
+  --color-row-bg-hover: rgba(255, 46, 136, 0.05);
+  --color-row-bg-selected: rgba(155, 92, 255, 0.1);
+  --color-row-bg-selected-hover: rgba(155, 92, 255, 0.16);
+
+  --color-scrollbar: #7a1338;
+  --color-sorter-fg-active: #ff2e88;
+}

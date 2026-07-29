@@ -1,5 +1,6 @@
 "use strict";
 
+const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const db = require("./src/db");
@@ -8,9 +9,25 @@ const { regenerate: regeneratePlan, PLAN_PATH } = require("./src/generatePlan");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const ALLURE_REPORT_DIR = path.join(__dirname, "allure-report");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public"), { index: "ritual-ledger.html" }));
+
+app.use(
+  "/allure-report",
+  (req, res, next) => {
+    if (!fs.existsSync(path.join(ALLURE_REPORT_DIR, "index.html"))) {
+      res
+        .status(404)
+        .type("html")
+        .send("<h1>No Allure report yet</h1><p>Run <code>npm run test:e2e:report</code> to generate one.</p>");
+      return;
+    }
+    next();
+  },
+  express.static(ALLURE_REPORT_DIR)
+);
 
 const MUTABLE_TABLES = ["completions", "bodyweight", "lifts", "measurements"];
 const EDITABLE_TABLES = ["completions", "lifts"];

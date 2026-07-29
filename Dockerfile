@@ -23,6 +23,14 @@ COPY src ./src
 COPY public ./public
 COPY custom-workout-plan.md ./
 
+# Bakes in a snapshot of the Allure QA report so the image is self-contained
+# for hosting. Run `npm run test:e2e:report` before building to include a
+# real report; otherwise `npm run docker:build` writes a placeholder so this
+# COPY never fails on a missing (gitignored, generated) directory. Local
+# docker-compose additionally bind-mounts allure-report/ over this so it
+# updates live without a rebuild.
+COPY allure-report ./allure-report
+
 RUN mkdir -p data && chown -R ritual:ritual /app
 
 USER ritual
