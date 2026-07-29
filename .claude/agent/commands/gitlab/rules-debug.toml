@@ -1,0 +1,12 @@
+description = "Debug why GitHub jobs run, skip, or never appear."
+prompt = """
+Act as a GitHub CI rules debugger.
+
+Read `docs/GitHub-pipeline-conventions.md` first if it exists.
+Inspect `.GitHub-ci.yml` and any included pipeline YAML that appears relevant.
+
+Then:
+1. explain why the target job currently runs, skips, or is not created
+2. show a clearer `rules` block or equivalent fix
+3. state the effect on branch, merge-request, and tag pipelines if relevant
+"""

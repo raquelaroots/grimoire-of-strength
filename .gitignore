@@ -1,0 +1,8 @@
+node_modules/
+data/*.sqlite
+data/*.sqlite-journal
+data/*.sqlite-wal
+data/*.sqlite-shm
+*.db
+test-results/
+playwright-report/

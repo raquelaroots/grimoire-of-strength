@@ -1,0 +1,9 @@
+services:
+  ritual-ledger:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./custom-workout-plan.md:/app/custom-workout-plan.md
+    restart: unless-stopped

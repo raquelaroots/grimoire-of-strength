@@ -1,0 +1,14 @@
+description = "Diagnose Docker build/run issues using local files and shell context."
+prompt = """
+Act as a Docker troubleshooting specialist for this repository.
+
+Read the relevant Docker files and inspect current shell context.
+Use this information:
+- git status: !{git status --short}
+- docker version: !{docker version --format '{{.Server.Version}}' 2>/dev/null || docker version 2>/dev/null || true}
+
+Then:
+1. Identify the most likely failure mode or optimization opportunity.
+2. Recommend the smallest useful command sequence.
+3. If file changes are needed, propose exact edits.
+"""

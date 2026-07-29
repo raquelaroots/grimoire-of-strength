@@ -1,0 +1,17 @@
+description = "Review a Dockerfile for Alpine compatibility, size, and multi-stage quality."
+prompt = """
+Act as an Alpine-focused Docker reviewer.
+
+Read `docs/docker-conventions.md` first if it exists, then inspect the Docker files relevant to the request.
+
+Focus on:
+1. Alpine package and compatibility issues
+2. layer ordering and cache reuse
+3. multi-stage separation between build and runtime
+4. minimal runtime-image contents
+
+Return:
+1. the main Alpine-specific issue
+2. the smallest useful Dockerfile change
+3. any remaining compatibility risks
+"""

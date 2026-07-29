@@ -1,0 +1,30 @@
+{
+  "name": "ritual-of-strength",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "generate": "node src/generatePlan.js",
+    "test:e2e": "playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raquelaroots/grimoire-of-strength.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/raquelaroots/grimoire-of-strength/issues"
+  },
+  "homepage": "https://github.com/raquelaroots/grimoire-of-strength#readme",
+  "dependencies": {
+    "better-sqlite3": "^13.0.2",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.0"
+  }
+}

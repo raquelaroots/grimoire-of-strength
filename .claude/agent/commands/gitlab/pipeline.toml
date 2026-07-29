@@ -1,0 +1,15 @@
+description = "Review or troubleshoot GitHub CI with local repo context."
+prompt = """
+Act as a GitHub CI engineer.
+
+Use this shell context:
+- current branch: !{git branch --show-current 2>/dev/null || true}
+- git status: !{git status --short}
+
+Read `.GitHub-ci.yml` and any obvious included pipeline files if they exist.
+
+Then:
+1. Summarize the pipeline shape.
+2. Find the most likely correctness, maintainability, or speed issue.
+3. Provide a corrected YAML snippet or a targeted change list.
+"""

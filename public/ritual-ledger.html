@@ -251,6 +251,14 @@
     outline:none; border-color:var(--pink);
   }
   textarea{ resize:vertical; min-height:60px; }
+  input[type="date"]{
+    color-scheme: dark;
+    cursor:pointer;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator{
+    filter: invert(0.85) drop-shadow(0 0 2px rgba(255,46,136,0.4));
+    cursor:pointer;
+  }
   .moon-select{ display:flex; gap:6px; }
   .moon-select button{
     flex:1;
@@ -266,6 +274,23 @@
     border-color:var(--gold);
     color:var(--gold);
     background:rgba(201,162,39,0.08);
+  }
+
+  .blade-meter{ display:flex; gap:6px; }
+  .blade-meter button{
+    flex:1;
+    background:var(--void);
+    border:1px solid var(--panel-line);
+    border-radius:6px;
+    padding:8px 0;
+    font-size:16px;
+    cursor:pointer;
+    filter:grayscale(1) opacity(0.35);
+    transition: filter .12s ease, border-color .12s ease;
+  }
+  .blade-meter button.lit{
+    border-color:var(--blood);
+    filter:grayscale(0) opacity(1) drop-shadow(0 0 3px rgba(122,19,56,0.6));
   }
 
   /* ---------- tables/lists ---------- */
@@ -324,7 +349,7 @@
 <body>
 
 <div class="storage-banner" id="storageBanner">
-  ⚠ Local storage isn't available in this preview, so entries won't persist here — download this file and open it directly in your browser to save your journal for real.
+  ⚠ Can't reach the local Ritual Ledger server — make sure <code>npm start</code> is running, then reload this page.
 </div>
 
 <div class="shell">
@@ -350,6 +375,7 @@
     <button data-tab="log">📜 Ritual Log</button>
     <button data-tab="body">⚖️ Body &amp; Vessel</button>
     <button data-tab="lifts">🗡️ Lift Progress</button>
+    <button data-tab="grimoire">📖 Grimoire</button>
     <button data-tab="data">🕯️ Data</button>
   </nav>
 
@@ -381,6 +407,10 @@
         </div>
         <button class="btn" id="quickLogBtn">+ Log a Session</button>
       </div>
+      <details style="margin:6px 0 16px;">
+        <summary style="cursor:pointer; color:var(--muted); font-size:13px;">View exercises</summary>
+        <div id="suggestExercises" style="margin-top:8px;"></div>
+      </details>
       <div id="dashRecent"></div>
     </div>
 
@@ -523,6 +553,76 @@
         No weight entries yet.
       </div>
     </div>
+
+    <div class="section-head-row" style="margin-top:28px;">
+      <div>
+        <h2 class="section-title">Measurements</h2>
+        <p class="section-sub">Waist, hips, chest, and limbs — the vessel's shape over time.</p>
+      </div>
+      <button class="btn" id="openMeasureForm">+ Log Measurement</button>
+    </div>
+
+    <div class="panel-form" id="measureForm">
+      <div class="field-row">
+        <div>
+          <label>Date</label>
+          <input type="date" id="measureDate">
+        </div>
+        <div>
+          <label>Metric</label>
+          <select id="measureMetric">
+            <option>Waist</option>
+            <option>Hips</option>
+            <option>Chest</option>
+            <option>Left Arm</option>
+            <option>Right Arm</option>
+            <option>Left Thigh</option>
+            <option>Right Thigh</option>
+            <option value="__other">Other…</option>
+          </select>
+        </div>
+        <div id="measureMetricOtherWrap" style="display:none;">
+          <label>Custom Metric</label>
+          <input type="text" id="measureMetricOther" placeholder="Metric name">
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>Value</label>
+          <input type="number" step="0.1" id="measureValue" placeholder="e.g. 30.5">
+        </div>
+        <div>
+          <label>Unit</label>
+          <div class="unit-toggle" id="measureUnitToggle">
+            <button data-unit="in" class="active">in</button>
+            <button data-unit="cm">cm</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn" id="saveMeasureBtn">Seal Entry</button>
+        <button class="btn ghost" id="cancelMeasureBtn">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <div class="section-head-row" style="margin-bottom:6px;">
+        <label style="margin:0;">Viewing metric</label>
+        <select id="measureChartSelect" style="max-width:260px;"></select>
+      </div>
+      <div class="chart-wrap" id="measureChartWrap"></div>
+    </div>
+
+    <div class="card" style="padding:0; overflow-x:auto;">
+      <table id="measureTable">
+        <thead><tr><th>Date</th><th>Metric</th><th>Value</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="empty-state" id="measureEmpty" style="display:none;">
+        <span class="glyph-big">📏</span>
+        No measurements logged yet.
+      </div>
+    </div>
   </section>
 
   <!-- ================= LIFT PROGRESS ================= -->
@@ -563,8 +663,24 @@
           <input type="number" step="0.5" id="liftWeight" placeholder="e.g. 25">
         </div>
         <div>
+          <label>Sets</label>
+          <input type="number" id="liftSets" placeholder="e.g. 3" min="1">
+        </div>
+        <div>
           <label>Reps</label>
           <input type="number" id="liftReps" placeholder="e.g. 10">
+        </div>
+      </div>
+      <div class="field-row" style="grid-template-columns: 1fr;">
+        <div>
+          <label>Ordeal Level</label>
+          <div class="blade-meter" id="difficultySelect">
+            <button data-val="1" type="button">🗡️</button>
+            <button data-val="2" type="button">🗡️</button>
+            <button data-val="3" type="button">🗡️</button>
+            <button data-val="4" type="button">🗡️</button>
+            <button data-val="5" type="button">🗡️</button>
+          </div>
         </div>
       </div>
       <div style="display:flex; gap:10px;">
@@ -583,7 +699,7 @@
 
     <div class="card" style="padding:0; overflow-x:auto;">
       <table id="liftTable">
-        <thead><tr><th>Date</th><th>Exercise</th><th>Weight</th><th>Reps</th><th></th></tr></thead>
+        <thead><tr><th>Date</th><th>Exercise</th><th>Weight</th><th>Sets</th><th>Reps</th><th>Ordeal</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
       <div class="empty-state" id="liftEmpty" style="display:none;">
@@ -593,10 +709,23 @@
     </div>
   </section>
 
+  <!-- ================= GRIMOIRE ================= -->
+  <section class="view" id="view-grimoire">
+    <div class="section-head-row">
+      <div>
+        <h2 class="section-title">The Grimoire</h2>
+        <p class="section-sub">The printable rite, generated from custom-workout-plan.md.</p>
+      </div>
+    </div>
+    <div class="card" style="padding:8px;">
+      <iframe id="grimoireFrame" src="/grimoire-of-strength.html" style="width:100%; height:80vh; border:1px solid var(--panel-line); border-radius:8px; background:#efe3c4;"></iframe>
+    </div>
+  </section>
+
   <!-- ================= DATA ================= -->
   <section class="view" id="view-data">
     <h2 class="section-title">Data &amp; Syncing</h2>
-    <p class="section-sub">This ledger lives in your browser's local storage on this device only — nothing is sent anywhere. Export a backup any time, or move your journal to another device by exporting here and importing there.</p>
+    <p class="section-sub">This ledger lives in a local SQLite database on this machine, served by the Ritual Ledger server — nothing leaves your computer. Export a backup any time, or move your journal to another machine by exporting here and importing there.</p>
 
     <div class="grid cols-2">
       <div class="card">
@@ -612,9 +741,16 @@
       </div>
     </div>
 
+    <div class="card" style="margin-top:18px;">
+      <h2 class="section-title" style="font-size:18px;">The Grimoire</h2>
+      <p class="section-sub">Rebuild <code>grimoire-of-strength.html</code> and this app's workout labels from the current <code>custom-workout-plan.md</code>. Run this after editing the plan file.</p>
+      <button class="btn ghost" id="regenerateBtn">📖 Regenerate Grimoire</button>
+      <span id="regenerateStatus" style="margin-left:12px; font-size:13px; color:var(--muted);"></span>
+    </div>
+
     <div class="card" style="margin-top:18px; border-color:rgba(255,92,92,0.3);">
       <h2 class="section-title" style="font-size:18px; color:var(--danger);">Clear Everything</h2>
-      <p class="section-sub">Erases all completions, weight, and lift entries on this device. Export first if unsure.</p>
+      <p class="section-sub">Erases all completions, weight, measurement, and lift entries on this device. Export first if unsure.</p>
       <button class="btn danger" id="clearBtn">Clear All Data</button>
     </div>
   </section>
@@ -626,56 +762,59 @@
 (function(){
   "use strict";
 
-  /* ---------------- storage layer ---------------- */
-  var STORAGE_KEY = "ritualLedger_v1";
-  var memoryFallback = null;
-  var usingMemory = false;
-
-  function storageAvailable(){
-    try{
-      var t = "__rl_test__";
-      localStorage.setItem(t,"1");
-      localStorage.removeItem(t);
-      return true;
-    }catch(e){ return false; }
-  }
-
-  if(!storageAvailable()){
-    usingMemory = true;
-    document.getElementById("storageBanner").classList.add("show");
-  }
-
+  /* ---------------- storage layer (server-backed) ---------------- */
   function defaultData(){
-    return { completions: [], bodyweight: [], lifts: [] };
+    return { completions: [], bodyweight: [], lifts: [], measurements: [] };
   }
 
-  function loadData(){
-    if(usingMemory){
-      if(!memoryFallback) memoryFallback = defaultData();
-      return memoryFallback;
+  var DATA = defaultData();
+  var serverReachable = true;
+  var healthPoll = null;
+
+  function showServerError(){
+    if(serverReachable){
+      serverReachable = false;
+      document.getElementById("storageBanner").classList.add("show");
     }
-    try{
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return defaultData();
-      var parsed = JSON.parse(raw);
-      return Object.assign(defaultData(), parsed);
-    }catch(e){ return defaultData(); }
+    if(!healthPoll){
+      healthPoll = setInterval(function(){
+        fetch("/api/health").then(function(r){
+          if(r.ok){
+            clearInterval(healthPoll);
+            healthPoll = null;
+            serverReachable = true;
+            document.getElementById("storageBanner").classList.remove("show");
+            refreshData().then(renderAll);
+          }
+        }).catch(function(){});
+      }, 5000);
+    }
   }
 
-  function saveData(data){
-    if(usingMemory){ memoryFallback = data; return; }
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-    catch(e){ /* silently ignore quota errors */ }
+  function refreshData(){
+    return fetch("/api/data").then(function(r){
+      if(!r.ok) throw new Error("bad response");
+      return r.json();
+    }).then(function(d){
+      DATA = Object.assign(defaultData(), d);
+    }).catch(function(err){
+      showServerError();
+      throw err;
+    });
   }
 
-  var DATA = loadData();
-
-  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
   function todayISO(){ return new Date().toISOString().slice(0,10); }
   function fmtDate(iso){
     var d = new Date(iso + "T00:00:00");
     return d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
   }
+
+  /* ---------------- date pickers ---------------- */
+  document.querySelectorAll('input[type="date"]').forEach(function(el){
+    el.addEventListener("click", function(){
+      if(el.showPicker){ try{ el.showPicker(); }catch(e){} }
+    });
+  });
 
   /* ---------------- tabs ---------------- */
   var tabs = document.querySelectorAll("nav.tabs button");
@@ -699,8 +838,9 @@
   }
   function currentCycle(){
     var wk = isoWeekNumber(new Date());
-    return (wk % 2 === 0) ? "A" : "B";
+    return (wk % 2 === 0) ? "B" : "A";
   }
+  var suggestedCode = null;
   function renderCycle(){
     var c = currentCycle();
     document.getElementById("cycleLabel").textContent = "Week " + c;
@@ -711,8 +851,7 @@
       var lastCode = sorted[0].workout;
       if(lastCode.indexOf("1") === 0) lastType = "2"; else if(lastCode.indexOf("2") === 0) lastType = "1";
     }
-    var label = lastType === "1" ? ("Workout 1" + c) : ("Workout 2" + c);
-    var niceMap = { "11A":"", };
+    suggestedCode = lastType + c;
     document.getElementById("suggestWorking").textContent =
       (lastType === "1" ? "Workout 1" : "Workout 2") + c + (lastType==="1" ? " (Strength)" : " (Core & Mobility)");
   }
@@ -748,8 +887,61 @@
   var WORKOUT_TAGCLASS = { "1A":"w1","1B":"w1","2A":"w2","2B":"w2","charm":"charm" };
   var MOON_EMOJI = {1:"🌑",2:"🌒",3:"🌓",4:"🌔",5:"🌕"};
 
+  /* ---------------- plan (from custom-workout-plan.md via the server) ---------------- */
+  var PLAN = { workouts: [] };
+
+  function refreshPlan(){
+    return fetch("/api/plan").then(function(r){
+      if(!r.ok) throw new Error("bad response");
+      return r.json();
+    }).then(function(p){
+      PLAN = p;
+      rebuildWorkoutMaps();
+    }).catch(function(){ /* plan data is supplementary — keep prior labels/select on failure */ });
+  }
+
+  function rebuildWorkoutMaps(){
+    var workouts = PLAN.workouts || [];
+    if(!workouts.length) return;
+
+    WORKOUT_LABELS = {};
+    WORKOUT_TAGCLASS = {};
+    workouts.forEach(function(w){
+      WORKOUT_LABELS[w.code] = "Workout " + w.number + " · Week " + w.week;
+      WORKOUT_TAGCLASS[w.code] = w.number === 1 ? "w1" : "w2";
+    });
+    WORKOUT_LABELS.charm = "The Quick Charm";
+    WORKOUT_TAGCLASS.charm = "charm";
+
+    var select = document.getElementById("logWorkout");
+    if(select){
+      var current = select.value;
+      var options = workouts.map(function(w){
+        return '<option value="'+w.code+'">'+WORKOUT_LABELS[w.code]+' ('+w.title+')</option>';
+      }).join('');
+      options += '<option value="charm">The Quick Charm (Optional)</option>';
+      select.innerHTML = options;
+      if(WORKOUT_LABELS[current] !== undefined) select.value = current;
+    }
+  }
+
+  function renderSuggestedExercises(){
+    var wrap = document.getElementById("suggestExercises");
+    if(!wrap) return;
+    var workout = (PLAN.workouts || []).filter(function(w){ return w.code === suggestedCode; })[0];
+    if(!workout || !workout.circuit || !workout.circuit.exercises.length){
+      wrap.innerHTML = '<span style="color:var(--muted); font-size:13px;">No exercise data available — try Regenerate Grimoire on the Data tab.</span>';
+      return;
+    }
+    wrap.innerHTML = '<ul style="margin:0; padding-left:18px; font-size:13.5px; color:var(--muted); line-height:1.7;">' +
+      workout.circuit.exercises.map(function(ex){
+        return '<li><b style="color:var(--bone);">'+ex.exercise+'</b> — '+ex.reps+'</li>';
+      }).join('') + '</ul>';
+  }
+
   function renderDashboard(){
     renderCycle();
+    renderSuggestedExercises();
     document.getElementById("statStreak").textContent = computeStreak();
     document.getElementById("statTotal").textContent = DATA.completions.length;
     document.getElementById("statTotalSub").textContent =
@@ -798,24 +990,42 @@
 
   /* ---------------- Ritual Log ---------------- */
   var logForm = document.getElementById("logForm");
+  var editingLogId = null;
+
+  function setEnergySelection(val){
+    selectedEnergy = val;
+    document.querySelectorAll("#energySelect button").forEach(function(x){
+      x.classList.toggle("sel", parseInt(x.dataset.val,10) === val);
+    });
+  }
+
+  function resetLogForm(){
+    editingLogId = null;
+    document.getElementById("saveLogBtn").textContent = "Seal Entry";
+    document.getElementById("logDuration").value = "";
+    document.getElementById("logNotes").value = "";
+    setEnergySelection(3);
+  }
+
   document.getElementById("openLogForm").addEventListener("click", function(){
+    resetLogForm();
     document.getElementById("logDate").value = todayISO();
     logForm.classList.add("open");
   });
   document.getElementById("quickLogBtn").addEventListener("click", function(){
     document.querySelector('nav.tabs button[data-tab="log"]').click();
+    resetLogForm();
     document.getElementById("logDate").value = todayISO();
     logForm.classList.add("open");
   });
-  document.getElementById("cancelLogBtn").addEventListener("click", function(){ logForm.classList.remove("open"); });
+  document.getElementById("cancelLogBtn").addEventListener("click", function(){
+    logForm.classList.remove("open");
+    resetLogForm();
+  });
 
   var selectedEnergy = 3;
   document.querySelectorAll("#energySelect button").forEach(function(b){
-    b.addEventListener("click", function(){
-      document.querySelectorAll("#energySelect button").forEach(function(x){ x.classList.remove("sel"); });
-      b.classList.add("sel");
-      selectedEnergy = parseInt(b.dataset.val,10);
-    });
+    b.addEventListener("click", function(){ setEnergySelection(parseInt(b.dataset.val,10)); });
   });
   document.querySelector('#energySelect button[data-val="3"]').classList.add("sel");
 
@@ -824,12 +1034,17 @@
     var workout = document.getElementById("logWorkout").value;
     var duration = parseInt(document.getElementById("logDuration").value,10) || null;
     var notes = document.getElementById("logNotes").value.trim();
-    DATA.completions.push({ id:uid(), date:date, workout:workout, duration:duration, energy:selectedEnergy, notes:notes });
-    saveData(DATA);
-    logForm.classList.remove("open");
-    document.getElementById("logDuration").value = "";
-    document.getElementById("logNotes").value = "";
-    renderAll();
+    var payload = { date:date, workout:workout, duration:duration, energy:selectedEnergy, notes:notes };
+    var url = editingLogId ? ("/api/completions/" + editingLogId) : "/api/completions";
+    var method = editingLogId ? "PUT" : "POST";
+    fetch(url, { method:method, headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload) })
+      .then(function(r){ if(!r.ok) throw new Error("save failed"); return refreshData(); })
+      .then(function(){
+        logForm.classList.remove("open");
+        resetLogForm();
+        renderAll();
+      })
+      .catch(showServerError);
   });
 
   var activeLogFilter = "all";
@@ -853,13 +1068,30 @@
         '<td>'+(c.duration ? c.duration+' min' : '—')+'</td>'+
         '<td>'+(MOON_EMOJI[c.energy]||'—')+'</td>'+
         '<td style="max-width:220px; color:var(--muted); font-size:13px;">'+(c.notes ? c.notes : '—')+'</td>'+
-        '<td class="row-actions"><button class="icon-btn" data-del="'+c.id+'">✕</button></td>'+
+        '<td class="row-actions"><button class="icon-btn" data-edit="'+c.id+'">✎</button><button class="icon-btn" data-del="'+c.id+'">✕</button></td>'+
         '</tr>';
     }).join('');
+    tbody.querySelectorAll("[data-edit]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var c = DATA.completions.filter(function(x){ return x.id === btn.dataset.edit; })[0];
+        if(!c) return;
+        editingLogId = c.id;
+        document.getElementById("logDate").value = c.date;
+        document.getElementById("logWorkout").value = c.workout;
+        document.getElementById("logDuration").value = c.duration || "";
+        document.getElementById("logNotes").value = c.notes || "";
+        setEnergySelection(c.energy || 3);
+        document.getElementById("saveLogBtn").textContent = "Update Entry";
+        logForm.classList.add("open");
+        logForm.scrollIntoView({ behavior:"smooth", block:"nearest" });
+      });
+    });
     tbody.querySelectorAll("[data-del]").forEach(function(btn){
       btn.addEventListener("click", function(){
-        DATA.completions = DATA.completions.filter(function(c){ return c.id !== btn.dataset.del; });
-        saveData(DATA); renderAll();
+        fetch("/api/completions/" + btn.dataset.del, { method:"DELETE" })
+          .then(function(r){ if(!r.ok) throw new Error("delete failed"); return refreshData(); })
+          .then(renderAll)
+          .catch(showServerError);
       });
     });
   }
@@ -885,11 +1117,14 @@
     var date = document.getElementById("weightDate").value || todayISO();
     var val = parseFloat(document.getElementById("weightValue").value);
     if(isNaN(val)) return;
-    DATA.bodyweight.push({ id:uid(), date:date, weight:val, unit:weightUnit });
-    saveData(DATA);
-    weightForm.classList.remove("open");
-    document.getElementById("weightValue").value = "";
-    renderAll();
+    fetch("/api/bodyweight", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ date:date, weight:val, unit:weightUnit }) })
+      .then(function(r){ if(!r.ok) throw new Error("save failed"); return refreshData(); })
+      .then(function(){
+        weightForm.classList.remove("open");
+        document.getElementById("weightValue").value = "";
+        renderAll();
+      })
+      .catch(showServerError);
   });
 
   function renderWeightView(){
@@ -905,19 +1140,141 @@
     }).join('');
     tbody.querySelectorAll("[data-del]").forEach(function(btn){
       btn.addEventListener("click", function(){
-        DATA.bodyweight = DATA.bodyweight.filter(function(w){ return w.id !== btn.dataset.del; });
-        saveData(DATA); renderAll();
+        fetch("/api/bodyweight/" + btn.dataset.del, { method:"DELETE" })
+          .then(function(r){ if(!r.ok) throw new Error("delete failed"); return refreshData(); })
+          .then(renderAll)
+          .catch(showServerError);
       });
     });
   }
 
+  /* ---------------- Measurements ---------------- */
+  var measureForm = document.getElementById("measureForm");
+  document.getElementById("openMeasureForm").addEventListener("click", function(){
+    document.getElementById("measureDate").value = todayISO();
+    measureForm.classList.add("open");
+  });
+  document.getElementById("cancelMeasureBtn").addEventListener("click", function(){ measureForm.classList.remove("open"); });
+  document.getElementById("measureMetric").addEventListener("change", function(e){
+    document.getElementById("measureMetricOtherWrap").style.display = e.target.value === "__other" ? "block" : "none";
+  });
+
+  var measureEntryUnit = "in";
+  document.getElementById("measureUnitToggle").addEventListener("click", function(e){
+    if(e.target.tagName !== "BUTTON") return;
+    measureEntryUnit = e.target.dataset.unit;
+    document.querySelectorAll("#measureUnitToggle button").forEach(function(b){ b.classList.remove("active"); });
+    e.target.classList.add("active");
+  });
+
+  document.getElementById("saveMeasureBtn").addEventListener("click", function(){
+    var date = document.getElementById("measureDate").value || todayISO();
+    var metSel = document.getElementById("measureMetric").value;
+    var metric = metSel === "__other" ? (document.getElementById("measureMetricOther").value.trim() || "Other") : metSel;
+    var value = parseFloat(document.getElementById("measureValue").value);
+    if(isNaN(value)) return;
+    fetch("/api/measurements", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ date:date, metric:metric, value:value, unit:measureEntryUnit }) })
+      .then(function(r){ if(!r.ok) throw new Error("save failed"); return refreshData(); })
+      .then(function(){
+        measureForm.classList.remove("open");
+        document.getElementById("measureValue").value = "";
+        renderAll();
+      })
+      .catch(showServerError);
+  });
+
+  function measureMetricList(){
+    var set = {};
+    DATA.measurements.forEach(function(m){ set[m.metric] = true; });
+    var defaults = ["Waist","Hips","Chest","Left Arm","Right Arm","Left Thigh","Right Thigh"];
+    defaults.forEach(function(d){ set[d] = true; });
+    return Object.keys(set).sort();
+  }
+
+  var measureChartMetric = null;
+  function renderMeasureView(){
+    var metrics = measureMetricList();
+    var select = document.getElementById("measureChartSelect");
+    if(!measureChartMetric || metrics.indexOf(measureChartMetric) === -1) measureChartMetric = metrics[0];
+    select.innerHTML = metrics.map(function(m){
+      return '<option value="'+m+'"'+(m===measureChartMetric?' selected':'')+'>'+m+'</option>';
+    }).join('');
+
+    var list = DATA.measurements.filter(function(m){ return m.metric === measureChartMetric; }).slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+    var chartUnit = list.length ? list[list.length-1].unit : "in";
+    document.getElementById("measureChartWrap").innerHTML = list.length ? drawLineChart(list.map(function(m){return {date:m.date, value:m.value};}), chartUnit) : emptyChartMsg("No entries for this metric yet.");
+
+    var tbody = document.querySelector("#measureTable tbody");
+    var allSorted = DATA.measurements.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+    document.getElementById("measureEmpty").style.display = allSorted.length ? "none" : "block";
+    tbody.innerHTML = allSorted.map(function(m){
+      return '<tr><td>'+fmtDate(m.date)+'</td><td>'+m.metric+'</td><td>'+m.value+' '+m.unit+'</td>'+
+        '<td class="row-actions"><button class="icon-btn" data-del="'+m.id+'">✕</button></td></tr>';
+    }).join('');
+    tbody.querySelectorAll("[data-del]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        fetch("/api/measurements/" + btn.dataset.del, { method:"DELETE" })
+          .then(function(r){ if(!r.ok) throw new Error("delete failed"); return refreshData(); })
+          .then(renderAll)
+          .catch(showServerError);
+      });
+    });
+  }
+  document.getElementById("measureChartSelect").addEventListener("change", function(e){
+    measureChartMetric = e.target.value;
+    renderMeasureView();
+  });
+
   /* ---------------- Lift Progress ---------------- */
   var liftForm = document.getElementById("liftForm");
+  var editingLiftId = null;
+  var selectedDifficulty = 3;
+
+  function setDifficultySelection(val){
+    selectedDifficulty = val;
+    document.querySelectorAll("#difficultySelect button").forEach(function(x){
+      x.classList.toggle("lit", parseInt(x.dataset.val,10) <= val);
+    });
+  }
+  document.querySelectorAll("#difficultySelect button").forEach(function(b){
+    b.addEventListener("click", function(){ setDifficultySelection(parseInt(b.dataset.val,10)); });
+  });
+  setDifficultySelection(3);
+
+  function setLiftExerciseField(exercise){
+    var select = document.getElementById("liftExercise");
+    var hasOption = Array.prototype.some.call(select.options, function(o){ return o.value === exercise; });
+    if(hasOption){
+      select.value = exercise;
+      document.getElementById("liftExerciseOtherWrap").style.display = "none";
+    } else {
+      select.value = "__other";
+      document.getElementById("liftExerciseOtherWrap").style.display = "block";
+      document.getElementById("liftExerciseOther").value = exercise;
+    }
+  }
+
+  function resetLiftForm(){
+    editingLiftId = null;
+    document.getElementById("saveLiftBtn").textContent = "Seal Entry";
+    document.getElementById("liftWeight").value = "";
+    document.getElementById("liftSets").value = "";
+    document.getElementById("liftReps").value = "";
+    document.getElementById("liftExerciseOther").value = "";
+    document.getElementById("liftExerciseOtherWrap").style.display = "none";
+    document.getElementById("liftExercise").value = "Romanian Deadlift";
+    setDifficultySelection(3);
+  }
+
   document.getElementById("openLiftForm").addEventListener("click", function(){
+    resetLiftForm();
     document.getElementById("liftDate").value = todayISO();
     liftForm.classList.add("open");
   });
-  document.getElementById("cancelLiftBtn").addEventListener("click", function(){ liftForm.classList.remove("open"); });
+  document.getElementById("cancelLiftBtn").addEventListener("click", function(){
+    liftForm.classList.remove("open");
+    resetLiftForm();
+  });
   document.getElementById("liftExercise").addEventListener("change", function(e){
     document.getElementById("liftExerciseOtherWrap").style.display = e.target.value === "__other" ? "block" : "none";
   });
@@ -927,14 +1284,20 @@
     var exSel = document.getElementById("liftExercise").value;
     var exercise = exSel === "__other" ? (document.getElementById("liftExerciseOther").value.trim() || "Other") : exSel;
     var weight = parseFloat(document.getElementById("liftWeight").value);
+    var sets = parseInt(document.getElementById("liftSets").value,10);
     var reps = parseInt(document.getElementById("liftReps").value,10);
     if(isNaN(weight)) return;
-    DATA.lifts.push({ id:uid(), date:date, exercise:exercise, weight:weight, reps: isNaN(reps)?null:reps });
-    saveData(DATA);
-    liftForm.classList.remove("open");
-    document.getElementById("liftWeight").value = "";
-    document.getElementById("liftReps").value = "";
-    renderAll();
+    var payload = { date:date, exercise:exercise, weight:weight, sets: isNaN(sets)?null:sets, reps: isNaN(reps)?null:reps, difficulty:selectedDifficulty };
+    var url = editingLiftId ? ("/api/lifts/" + editingLiftId) : "/api/lifts";
+    var method = editingLiftId ? "PUT" : "POST";
+    fetch(url, { method:method, headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload) })
+      .then(function(r){ if(!r.ok) throw new Error("save failed"); return refreshData(); })
+      .then(function(){
+        liftForm.classList.remove("open");
+        resetLiftForm();
+        renderAll();
+      })
+      .catch(showServerError);
   });
 
   function liftExerciseList(){
@@ -961,13 +1324,32 @@
     var allSorted = DATA.lifts.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
     document.getElementById("liftEmpty").style.display = allSorted.length ? "none" : "block";
     tbody.innerHTML = allSorted.map(function(l){
-      return '<tr><td>'+fmtDate(l.date)+'</td><td>'+l.exercise+'</td><td>'+l.weight+' lb</td><td>'+(l.reps||'—')+'</td>'+
-        '<td class="row-actions"><button class="icon-btn" data-del="'+l.id+'">✕</button></td></tr>';
+      var ordeal = l.difficulty ? '🗡️'.repeat(l.difficulty) : '—';
+      return '<tr><td>'+fmtDate(l.date)+'</td><td>'+l.exercise+'</td><td>'+l.weight+' lb</td><td>'+(l.sets||'—')+'</td><td>'+(l.reps||'—')+'</td><td>'+ordeal+'</td>'+
+        '<td class="row-actions"><button class="icon-btn" data-edit="'+l.id+'">✎</button><button class="icon-btn" data-del="'+l.id+'">✕</button></td></tr>';
     }).join('');
+    tbody.querySelectorAll("[data-edit]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var l = DATA.lifts.filter(function(x){ return x.id === btn.dataset.edit; })[0];
+        if(!l) return;
+        editingLiftId = l.id;
+        document.getElementById("liftDate").value = l.date;
+        setLiftExerciseField(l.exercise);
+        document.getElementById("liftWeight").value = l.weight;
+        document.getElementById("liftSets").value = l.sets || "";
+        document.getElementById("liftReps").value = l.reps || "";
+        setDifficultySelection(l.difficulty || 3);
+        document.getElementById("saveLiftBtn").textContent = "Update Entry";
+        liftForm.classList.add("open");
+        liftForm.scrollIntoView({ behavior:"smooth", block:"nearest" });
+      });
+    });
     tbody.querySelectorAll("[data-del]").forEach(function(btn){
       btn.addEventListener("click", function(){
-        DATA.lifts = DATA.lifts.filter(function(l){ return l.id !== btn.dataset.del; });
-        saveData(DATA); renderAll();
+        fetch("/api/lifts/" + btn.dataset.del, { method:"DELETE" })
+          .then(function(r){ if(!r.ok) throw new Error("delete failed"); return refreshData(); })
+          .then(renderAll)
+          .catch(showServerError);
       });
     });
   }
@@ -1052,22 +1434,38 @@
     if(!input.files || !input.files[0]){ alert("Choose a JSON file first."); return; }
     var reader = new FileReader();
     reader.onload = function(e){
-      try{
-        var parsed = JSON.parse(e.target.result);
-        DATA = Object.assign(defaultData(), parsed);
-        saveData(DATA);
-        renderAll();
-        alert("Journal imported.");
-      }catch(err){ alert("That file couldn't be read as a valid backup."); }
+      var parsed;
+      try{ parsed = JSON.parse(e.target.result); }
+      catch(err){ alert("That file couldn't be read as a valid backup."); return; }
+      fetch("/api/import", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(parsed) })
+        .then(function(r){ if(!r.ok) throw new Error("import failed"); return refreshData(); })
+        .then(function(){ renderAll(); alert("Journal imported."); })
+        .catch(function(){ showServerError(); alert("Import failed — check the server connection."); });
     };
     reader.readAsText(input.files[0]);
   });
 
+  document.getElementById("regenerateBtn").addEventListener("click", function(){
+    var status = document.getElementById("regenerateStatus");
+    status.textContent = "Regenerating…";
+    fetch("/api/plan/regenerate", { method:"POST" })
+      .then(function(r){ if(!r.ok) throw new Error("regenerate failed"); return refreshPlan(); })
+      .then(function(){
+        renderAll();
+        status.textContent = "Done — grimoire and labels updated.";
+        var frame = document.getElementById("grimoireFrame");
+        if(frame) frame.src = "/grimoire-of-strength.html?t=" + Date.now();
+        setTimeout(function(){ status.textContent = ""; }, 4000);
+      })
+      .catch(function(){ status.textContent = "Regenerate failed — check the server connection."; });
+  });
+
   document.getElementById("clearBtn").addEventListener("click", function(){
     if(!confirm("This will permanently erase every entry on this device. Continue?")) return;
-    DATA = defaultData();
-    saveData(DATA);
-    renderAll();
+    fetch("/api/clear", { method:"POST" })
+      .then(function(r){ if(!r.ok) throw new Error("clear failed"); return refreshData(); })
+      .then(renderAll)
+      .catch(showServerError);
   });
 
   /* ---------------- render all ---------------- */
@@ -1075,9 +1473,10 @@
     renderDashboard();
     renderLogTable();
     renderWeightView();
+    renderMeasureView();
     renderLiftView();
   }
-  renderAll();
+  Promise.all([refreshData(), refreshPlan()]).then(renderAll);
 })();
 </script>
 </body>
