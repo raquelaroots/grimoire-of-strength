@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Grimoire of Strength</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#241521;
+    --parchment:#efe3c4;
+    --parchment-dark:#e5d5ab;
+    --burgundy:#6c1f3c;
+    --gold:#a9822f;
+    --sage:#5c6b45;
+    --line: rgba(36,21,33,0.25);
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    padding:40px 16px;
+    background: #1b1017;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(169,130,47,0.08), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(108,31,60,0.15), transparent 45%);
+    font-family:'EB Garamond', serif;
+    color:var(--ink);
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  .print-bar{
+    max-width:800px;
+    margin:0 auto 20px;
+    text-align:right;
+  }
+  .print-bar button{
+    font-family:'EB Garamond',serif;
+    font-size:14px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    background:var(--burgundy);
+    color:var(--parchment);
+    border:1px solid var(--gold);
+    padding:10px 20px;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .print-bar button:hover{ background:#83254a; }
+
+  .page{
+    position:relative;
+    max-width:800px;
+    margin:0 auto 40px;
+    background:
+      linear-gradient(var(--parchment), var(--parchment)),
+      repeating-linear-gradient(0deg, rgba(108,31,60,0.02) 0 2px, transparent 2px 4px);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 25px 60px rgba(0,0,0,0.55);
+    padding:56px 54px 48px;
+    border:1px solid var(--gold);
+    outline: 1px solid rgba(36,21,33,0.5);
+    outline-offset: -8px;
+  }
+
+  .corner{
+    position:absolute;
+    width:34px; height:34px;
+    border: 2px solid var(--gold);
+    opacity:0.8;
+  }
+  .corner.tl{ top:10px; left:10px; border-right:none; border-bottom:none; }
+  .corner.tr{ top:10px; right:10px; border-left:none; border-bottom:none; }
+  .corner.bl{ bottom:10px; left:10px; border-right:none; border-top:none; }
+  .corner.br{ bottom:10px; right:10px; border-left:none; border-top:none; }
+
+  .eyebrow{
+    text-align:center;
+    letter-spacing:0.35em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:var(--burgundy);
+    margin-bottom:6px;
+  }
+
+  h1.title{
+    font-family:'UnifrakturMaguntia', cursive;
+    font-weight:400;
+    text-align:center;
+    font-size:52px;
+    color:var(--ink);
+    margin:6px 0 4px;
+    text-shadow: 1px 1px 0 rgba(169,130,47,0.4);
+  }
+
+  .subtitle{
+    text-align:center;
+    font-style:italic;
+    font-size:19px;
+    color:#3a2a35;
+    margin:0 0 22px;
+  }
+
+  .divider{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin:22px 0 26px;
+    color:var(--gold);
+  }
+  .divider .line{
+    height:1px;
+    width:120px;
+    background:linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+  .divider .moons{
+    font-size:15px;
+    letter-spacing:6px;
+  }
+
+  .ex-libris{
+    border:1px solid var(--line);
+    background:rgba(169,130,47,0.06);
+    padding:16px 20px;
+    font-size:15px;
+    line-height:1.65;
+    margin:26px 0;
+  }
+  .ex-libris b{ color:var(--burgundy); }
+
+  h2.working{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:700;
+    font-size:30px;
+    color:var(--burgundy);
+    text-align:center;
+    margin:0 0 2px;
+    letter-spacing:0.02em;
+  }
+  .working-sub{
+    text-align:center;
+    font-size:14px;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color:var(--sage);
+    margin-bottom:22px;
+  }
+
+  h3.rite{
+    font-family:'Cormorant Garamond', serif;
+    font-size:20px;
+    font-weight:600;
+    color:var(--ink);
+    border-bottom:1px solid var(--line);
+    padding-bottom:6px;
+    margin:26px 0 12px;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  h3.rite .glyph{ color:var(--gold); font-size:16px; }
+
+  ul.simple{ margin:0; padding-left:22px; line-height:1.75; font-size:16px;}
+  ul.simple li{ margin-bottom:4px; }
+
+  table.spell{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:6px;
+    font-size:15.5px;
+  }
+  table.spell th{
+    text-align:left;
+    font-family:'Cormorant Garamond',serif;
+    font-size:13px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--burgundy);
+    border-bottom:1px solid var(--gold);
+    padding:6px 8px;
+  }
+  table.spell td{
+    padding:9px 8px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+    line-height:1.5;
+  }
+  table.spell td:first-child{
+    font-weight:600;
+    width:34%;
+  }
+  table.spell td:nth-child(2){
+    width:16%;
+    color:var(--burgundy);
+    font-style:italic;
+    white-space:nowrap;
+  }
+  table.spell tr:last-child td{ border-bottom:none; }
+
+  .note-box{
+    margin-top:22px;
+    border-left:3px solid var(--sage);
+    padding:10px 16px;
+    background:rgba(92,107,69,0.08);
+    font-size:14.5px;
+    line-height:1.6;
+    font-style:italic;
+    color:#2f2b26;
+  }
+
+  .rounds-note{
+    text-align:center;
+    font-size:14px;
+    font-style:italic;
+    color:var(--sage);
+    margin:-4px 0 4px;
+  }
+
+  .footer-mark{
+    text-align:center;
+    margin-top:34px;
+    font-size:12px;
+    letter-spacing:0.25em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+
+  .warning-seal{
+    margin-top:28px;
+    border:1px dashed var(--burgundy);
+    padding:14px 18px;
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--burgundy);
+    background:rgba(108,31,60,0.05);
+  }
+  .warning-seal b{ text-transform:uppercase; letter-spacing:0.08em; }
+
+  @media print{
+    body{ background:var(--parchment); padding:0; }
+    .print-bar{ display:none; }
+    .page{
+      box-shadow:none;
+      border:none;
+      outline:none;
+      margin:0 auto;
+      max-width:none;
+      width:100%;
+      page-break-after:always;
+    }
+    .page:last-child{ page-break-after:auto; }
+  }
+
+  @page{
+    size: letter;
+    margin: 0.35in;
+  }
+</style>
+</head>
+<body>
+
+<div class="print-bar"><button onclick="window.print()">🕯 Print this Grimoire</button></div>
+
+<!-- PAGE 1: COVER + OVERVIEW -->
+<div class="page">
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+  <div class="eyebrow">Being a Compendium of</div>
+  <h1 class="title">Grimoire of Strength</h1>
+  <p class="subtitle">A Two-Working Ritual for Mobility, Muscle &amp; Bone-Deep Power</p>
+
+  <div class="divider"><div class="line"></div><div class="moons">☽ ✦ ☾</div><div class="line"></div></div>
+
+  <div class="ex-libris">
+    <b>Cast:</b> twice weekly, thirty minutes each &mdash; with a shorter third charm optional.<br>
+    <b>Cycles:</b> alternate Week A and Week B each week, so the workings stay fresh.<br>
+    <b>Complements:</b> running, hiking, spin, and yoga already in your practice.<br>
+    <b>Sought:</b> mobility, flexibility, strength, and bone-deep resilience with age.<br>
+    <b>Vessels required:</b> yoga mat, dumbbells, resistance band, power rack.<br>
+    <b>Bound by protection:</b> no heavy deadlifts, no heavy squats, no full sit-ups, no pull-ups &mdash; honoring an abdominal hernia.
+  </div>
+
+  <div class="warning-seal">
+    <b>A Word of Caution</b> &mdash; before beginning this rite, consult a healer (physician or physical therapist) familiar with your hernia. Exhale on effort, never hold the breath, and cease any working that summons strain or pressure at the site.
+  </div>
+
+  <div class="footer-mark">✦ turn the page to begin the first working ✦</div>
+</div>
+
+<!-- PAGE 2: WORKOUT 1 -->
+<div class="page">
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+  <h2 class="working">First Working &mdash; Week A</h2>
+  <p class="working-sub">Waxing Moon &middot; Strength &amp; Bone-Deep Power &middot; ~28 minutes &middot; dumbbells + rack</p>
+
+  <h3 class="rite"><span class="glyph">✦</span> Rite of Waking (Warm-up, 4 min)</h3>
+  <ul class="simple">
+    <li>Arm circles &mdash; 30 sec each direction</li>
+    <li>Leg swings, front-back and side-side &mdash; 10 each leg</li>
+    <li>Cat&ndash;Cow &mdash; 8 reps</li>
+    <li>Bodyweight glute bridge &mdash; 10 reps</li>
+  </ul>
+
+  <h3 class="rite"><span class="glyph">✦</span> The Working Itself (~20 min)</h3>
+  <p class="rounds-note">2&ndash;3 rounds, minimal rest between exercises, 60&ndash;90 sec between rounds &mdash; keep to 2 rounds if time is short</p>
+  <table class="spell">
+    <tr><th>Exercise</th><th>Reps / Time</th><th>Notes</th></tr>
+    <tr><td>Rack-supported split squat or step-up</td><td>8 / leg</td><td>Use the rack rail for balance, not heavy load</td></tr>
+    <tr><td>Dumbbell Romanian deadlift</td><td>10</td><td>Light&ndash;moderate weight, soft knees, hinge from the hips</td></tr>
+    <tr><td>Standing dumbbell overhead press</td><td>8&ndash;10</td><td>Builds shoulder and upper-body bone density</td></tr>
+    <tr><td>Barbell bench press (using the power rack)</td><td>8&ndash;10</td><td>Set safety pins just below chest height; lying position is low-strain for the hernia, feet flat, don't arch hard</td></tr>
+    <tr><td>Single-arm dumbbell row</td><td>10 / arm</td><td>Bench or rack-supported; spine neutral, no twisting</td></tr>
+    <tr><td>Suitcase hold</td><td>30&ndash;40 sec / side</td><td>Stand tall holding a heavy dumbbell at your side, shoulders level, ribs stacked over hips &mdash; resists you leaning sideways. No walking space needed.</td></tr>
+  </table>
+
+  <h3 class="rite"><span class="glyph">✦</span> Rite of Closing (Cool-down, 5 min)</h3>
+  <ul class="simple">
+    <li>Standing quad stretch &mdash; 30 sec / side</li>
+    <li>Kneeling hip flexor stretch &mdash; 30 sec / side</li>
+    <li>Doorway chest &amp; shoulder stretch &mdash; 30 sec</li>
+    <li>Child's pose &mdash; 45&ndash;60 sec</li>
+  </ul>
+
+  <div class="footer-mark">✦ ☽ ✦</div>
+</div>
+
+<!-- PAGE 2B: WORKOUT 1, WEEK B -->
+<div class="page">
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+  <h2 class="working">First Working &mdash; Week B</h2>
+  <p class="working-sub">Waning Moon (Alternate) &middot; Strength &amp; Bone-Deep Power &middot; ~28 minutes &middot; dumbbells + rack</p>
+  <p style="text-align:center; font-style:italic; font-size:14px; color:var(--sage); margin-top:-8px;">The deadlift and bench press remain unchanged &mdash; the rest of the working is transformed.</p>
+
+  <h3 class="rite"><span class="glyph">✦</span> Rite of Waking (Warm-up, 4 min)</h3>
+  <ul class="simple">
+    <li>Cat&ndash;Cow &mdash; 8 reps</li>
+    <li>Standing hip circles &mdash; 8 / side</li>
+    <li>Arm circles &mdash; 30 sec each direction</li>
+    <li>Standing marches (knees to hip height) &mdash; 10 / side</li>
+  </ul>
+
+  <h3 class="rite"><span class="glyph">✦</span> The Working Itself (~20 min)</h3>
+  <p class="rounds-note">2&ndash;3 rounds, minimal rest between exercises, 60&ndash;90 sec between rounds</p>
+  <table class="spell">
+    <tr><th>Exercise</th><th>Reps / Time</th><th>Notes</th></tr>
+    <tr><td>Rack-supported goblet squat</td><td>8&ndash;10</td><td>Light&ndash;moderate weight, controlled depth, rack there for safety &mdash; not heavy</td></tr>
+    <tr><td>Dumbbell Romanian deadlift</td><td>10</td><td>Kept the same &mdash; light&ndash;moderate weight, soft knees, hinge from the hips</td></tr>
+    <tr><td>Single-arm dumbbell overhead press (alternating)</td><td>8 / side</td><td>Unilateral variety builds shoulder stability useful for hiking and running</td></tr>
+    <tr><td>Barbell bench press (using the power rack)</td><td>8&ndash;10</td><td>Kept the same &mdash; set safety pins just below chest height, lying position stays low-strain for the hernia</td></tr>
+    <tr><td>Bent-over double-arm dumbbell row</td><td>10</td><td>Hinge at the hips, flat back, squeeze shoulder blades together</td></tr>
+    <tr><td>Overhead waiter's hold</td><td>20&ndash;30 sec / side</td><td>Hold a dumbbell overhead with a straight arm, stacked over your shoulder &mdash; shoulder bone density, no walking space needed</td></tr>
+  </table>
+
+  <h3 class="rite"><span class="glyph">✦</span> Rite of Closing (Cool-down, 5 min)</h3>
+  <ul class="simple">
+    <li>Standing quad stretch &mdash; 30 sec / side</li>
+    <li>Kneeling hip flexor stretch &mdash; 30 sec / side</li>
+    <li>Doorway chest &amp; shoulder stretch &mdash; 30 sec</li>
+    <li>Child's pose &mdash; 45&ndash;60 sec</li>
+  </ul>
+
+  <div class="footer-mark">✦ ☾ ✦</div>
+</div>
+
+<!-- PAGE 3: WORKOUT 2 -->
+<div class="page">
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+  <h2 class="working">Second Working &mdash; Week A</h2>
+  <p class="working-sub">Waxing Moon &middot; Core, Stability &amp; Flexibility &middot; ~26 minutes &middot; mat + band</p>
+
+  <h3 class="rite"><span class="glyph">✦</span> Rite of Waking (Warm-up, 3 min)</h3>
+  <ul class="simple">
+    <li>Cat&ndash;Cow &mdash; 8 reps</li>
+    <li>Thread the needle &mdash; 6 / side</li>
+    <li>Standing hip circles &mdash; 8 / side</li>
+  </ul>
+
+  <h3 class="rite"><span class="glyph">✦</span> Core &amp; Stability Circuit (~13 min)</h3>
+  <p class="rounds-note">2&ndash;3 rounds</p>
+  <table class="spell">
+    <tr><th>Exercise</th><th>Reps / Time</th><th>Notes</th></tr>
+    <tr><td>Bird dog</td><td>10 / side</td><td>Slow and controlled, no low-back arch</td></tr>
+    <tr><td>Dead bug</td><td>10 / side</td><td>Low back stays flat on the mat</td></tr>
+    <tr><td>Side plank</td><td>20&ndash;30 sec / side</td><td>Knees down if needed; no breath-holding</td></tr>
+    <tr><td>Band Pallof press</td><td>10 / side</td><td><i>"Press and resist"</i> &mdash; anchor the band at chest height, press straight out and hold, then return. The point is <i>not</i> letting your torso twist toward the anchor.</td></tr>
+    <tr><td>Glute bridge (or banded hip thrust)</td><td>12</td><td>Squeeze glutes, not the lower back</td></tr>
+  </table>
+
+  <h3 class="rite"><span class="glyph">✦</span> Mobility Flow (5 min)</h3>
+  <ul class="simple">
+    <li><b>90/90 hip switches</b> &mdash; 6 / side &mdash; sit with front leg bent 90&deg; in front, back leg bent 90&deg; to the side, rotate knees side to side keeping the chest tall</li>
+    <li><b>Thoracic rotations</b> (quadruped) &mdash; 8 / side &mdash; hands and knees, one hand behind the head, rotate the elbow up toward the ceiling then down under the torso</li>
+    <li><b>World's Greatest Stretch</b> &mdash; 5 / side &mdash; from a lunge, drop the back hand to the floor, then rotate that same arm up toward the ceiling</li>
+  </ul>
+
+  <h3 class="rite"><span class="glyph">✦</span> Rite of Closing (Cool-down, 5 min)</h3>
+  <ul class="simple">
+    <li>Figure-4 stretch (lying) &mdash; 30 sec / side</li>
+    <li>Gentle supine spinal twist &mdash; 30 sec / side</li>
+    <li>Pigeon pose or seated glute stretch &mdash; 30 sec / side</li>
+    <li>Deep breathing in child's pose &mdash; 45 sec</li>
+  </ul>
+
+  <div class="footer-mark">✦ ☾ ✦</div>
+</div>
+
+<!-- PAGE 3B: WORKOUT 2, WEEK B -->
+<div class="page">
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+  <h2 class="working">Second Working &mdash; Week B</h2>
+  <p class="working-sub">Waning Moon (Alternate) &middot; Core, Stability &amp; Flexibility &middot; ~26 minutes &middot; mat + band</p>
+
+  <h3 class="rite"><span class="glyph">✦</span> Rite of Waking (Warm-up, 3 min)</h3>
+  <ul class="simple">
+    <li>Thread the needle &mdash; 6 / side</li>
+    <li>Cat&ndash;Cow &mdash; 8 reps</li>
+    <li>Standing marches with arm reach &mdash; 10 / side</li>
+  </ul>
+
+  <h3 class="rite"><span class="glyph">✦</span> Core &amp; Stability Circuit (~13 min)</h3>
+  <p class="rounds-note">2&ndash;3 rounds</p>
+  <table class="spell">
+    <tr><th>Exercise</th><th>Reps / Time</th><th>Notes</th></tr>
+    <tr><td>Half-kneeling Pallof press</td><td>10 / side</td><td>Same <i>"press and resist"</i> cue as the standing version, from a half-kneeling position &mdash; challenges hip and core stability together</td></tr>
+    <tr><td>Bear crawl hold</td><td>20&ndash;30 sec</td><td>Hands and toes on the mat, knees hovering just off the floor, flat back &mdash; no breath-holding</td></tr>
+    <tr><td>Forearm plank with shoulder taps</td><td>10 taps / side</td><td>Feet a bit wider for stability; keep hips still as you tap</td></tr>
+    <tr><td>Single-leg glute bridge</td><td>8&ndash;10 / side</td><td>Keep hips level, don't let them dip</td></tr>
+    <tr><td>Prone superman hold (gentle)</td><td>15&ndash;20 sec</td><td>Lift arms and legs slightly off the mat, low intensity &mdash; light posterior-chain work, not a hard arch</td></tr>
+  </table>
+
+  <h3 class="rite"><span class="glyph">✦</span> Mobility Flow (5 min)</h3>
+  <ul class="simple">
+    <li><b>Windmill stretch</b> &mdash; 6 / side &mdash; stand wide, hinge slightly forward, rotate reaching one hand to the sky while the other reaches down</li>
+    <li><b>Standing figure-4 to hip hinge</b> &mdash; 5 / side &mdash; cross ankle over opposite knee, hinge forward gently, stand back up</li>
+    <li><b>Cobra pose</b> (gentle) &mdash; 3 breaths, held lightly</li>
+  </ul>
+
+  <h3 class="rite"><span class="glyph">✦</span> Rite of Closing (Cool-down, 5 min)</h3>
+  <ul class="simple">
+    <li>Band-assisted supine hamstring stretch &mdash; 30 sec / side</li>
+    <li>Seated gentle spinal twist &mdash; 30 sec / side</li>
+    <li>Legs-up-the-wall &mdash; 90 sec (great for recovery and circulation)</li>
+    <li>Deep breathing in child's pose &mdash; 45 sec</li>
+  </ul>
+
+  <div class="footer-mark">✦ ☽ ✦</div>
+</div>
+
+<!-- PAGE 4: OPTIONAL + PROGRESSION -->
+<div class="page">
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+  <h2 class="working">The Quick Charm</h2>
+  <p class="working-sub">Optional Mobility &amp; Flexibility Reset &middot; 10&ndash;15 minutes</p>
+  <p style="text-align:center; font-style:italic; font-size:14.5px; color:#3a2a35; margin-top:-6px;">
+    Cast on a rest day, or split from the Second Working for a more frequent mobility habit.
+  </p>
+
+  <ul class="simple" style="margin-top:18px;">
+    <li>Cat&ndash;Cow &mdash; 10 reps</li>
+    <li>World's Greatest Stretch &mdash; 5 / side</li>
+    <li>90/90 hip switches &mdash; 8 / side</li>
+    <li>Thoracic rotations &mdash; 8 / side</li>
+    <li>Standing forward fold (soft knees, don't force it) &mdash; 30 sec</li>
+    <li>Pigeon pose &mdash; 45 sec / side</li>
+    <li>Box breathing or slow nasal breathing &mdash; 1 min</li>
+  </ul>
+
+  <div class="divider"><div class="line"></div><div class="moons">☽ ✦ ☾</div><div class="line"></div></div>
+
+  <h3 class="rite" style="border:none; justify-content:center;"><span class="glyph">✦</span> On the Growth of Power <span class="glyph">✦</span></h3>
+  <ul class="simple">
+    <li>Add weight only when every set is completed with good form and no strain at the hernia site.</li>
+    <li>Every 3&ndash;4 weeks, add one rep per set, or a small weight increase (2.5&ndash;5 lb), rather than jumping sets and reps at once.</li>
+    <li>The holds, presses, and deadlifts are your chief drivers of bone density here &mdash; favor consistency over heavy load.</li>
+    <li>If any movement ever feels wrong for your hernia, exchange it for a bodyweight or banded form rather than pushing through.</li>
+  </ul>
+
+  <div class="footer-mark">✦ so mote it be ✦</div>
+</div>
+
+</body>
+</html>
