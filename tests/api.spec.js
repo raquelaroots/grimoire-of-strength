@@ -205,4 +205,32 @@ test.describe("Ritual Ledger API", () => {
       });
     });
   });
+
+  test.describe("Test Runner", () => {
+    // Deliberately does not exercise POST /run or /cancel here: this suite's
+    // own webServer already occupies port 3100 (per playwright.config.js),
+    // and triggering a real run from within a run would try to start a
+    // second instance of that same webServer — a reflexive conflict. These
+    // tests cover the read-only surface (availability + suite discovery)
+    // instead; the run/cancel/regenerate lifecycle was verified manually
+    // (live streaming, tree-kill on cancel, concurrency 409, report
+    // regeneration) since it can't safely self-test from inside its own
+    // suite.
+    test("is available in this (dev) environment and lists the real spec files", async ({ request }) => {
+      await feature("Test Runner");
+      await story("Suite discovery");
+      await severity(Severity.NORMAL);
+
+      await step("the feature reports itself available", async () => {
+        const available = await (await request.get("/api/test-runner/available")).json();
+        expect(available.available).toBe(true);
+      });
+
+      await step("the suite list reflects the real tests/ directory plus an All-tests option", async () => {
+        const data = await (await request.get("/api/test-runner/suites")).json();
+        const ids = data.suites.map((s) => s.id).sort();
+        expect(ids).toEqual(["__all__", "api", "smoke"]);
+      });
+    });
+  });
 });

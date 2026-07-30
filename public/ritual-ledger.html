@@ -376,6 +376,7 @@
     <button data-tab="body">⚖️ Body &amp; Vessel</button>
     <button data-tab="lifts">🗡️ Lift Progress</button>
     <button data-tab="grimoire">📖 Grimoire</button>
+    <button data-tab="testrunner" id="testRunnerTabBtn" style="display:none;">🧪 Test Runner</button>
     <button data-tab="qa">🔬 QA Report</button>
     <button data-tab="data">🕯️ Data</button>
   </nav>
@@ -720,6 +721,27 @@
     </div>
     <div class="card" style="padding:8px;">
       <iframe id="grimoireFrame" src="/grimoire-of-strength.html" style="width:100%; height:80vh; border:1px solid var(--panel-line); border-radius:8px; background:#efe3c4;"></iframe>
+    </div>
+  </section>
+
+  <!-- ================= TEST RUNNER ================= -->
+  <section class="view" id="view-testrunner">
+    <div class="section-head-row">
+      <div>
+        <h2 class="section-title">Test Runner</h2>
+        <p class="section-sub">Run this app's Playwright suite and watch it live. On completion, the QA Report tab refreshes automatically.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <select id="suiteSelect" style="max-width:260px;"></select>
+        <button class="btn" id="runTestsBtn">▶ Run</button>
+        <button class="btn ghost" id="cancelTestsBtn" disabled>■ Cancel</button>
+        <span id="testRunnerStatus" style="font-size:13px; color:var(--muted);"></span>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px; padding:8px;">
+      <pre id="testRunnerOutput" style="height:60vh; overflow:auto; margin:0; padding:12px; background:#0a0610; color:#d8d0e6; font-family:'Space Grotesk', monospace; font-size:12.5px; line-height:1.5; white-space:pre-wrap; word-break:break-word; border-radius:6px;"></pre>
     </div>
   </section>
 
@@ -1473,6 +1495,99 @@
       })
       .catch(function(){ status.textContent = "Regenerate failed — check the server connection."; });
   });
+
+  /* ---------------- Test Runner ---------------- */
+  var trES = null;
+  var trGotFirstStatus = false;
+  var trOutput, trStatus, trRunBtn, trCancelBtn, trSuiteSelect;
+
+  function trAppendLine(evt){
+    var pre = trOutput;
+    var atBottom = pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 4;
+    pre.textContent += evt.text + "\n";
+    if(atBottom) pre.scrollTop = pre.scrollHeight;
+  }
+
+  function trSetButtons(status){
+    var busy = status === "running" || status === "regenerating";
+    trRunBtn.disabled = busy;
+    trSuiteSelect.disabled = busy;
+    trCancelBtn.disabled = status !== "running";
+  }
+
+  function trOnStatus(s){
+    var isFirst = !trGotFirstStatus;
+    trGotFirstStatus = true;
+    trSetButtons(s.status);
+
+    if(s.status === "running") trStatus.textContent = "Running " + s.suiteLabel + "…";
+    else if(s.status === "regenerating") trStatus.textContent = "Tests finished (exit " + s.exitCode + ") — regenerating QA report…";
+    else if(s.status === "cancelled") trStatus.textContent = "Cancelled.";
+    else if(s.status === "failed_to_start") trStatus.textContent = "Could not start the test run.";
+    else if(s.status === "regen_failed") trStatus.textContent = "Tests finished but report regeneration failed — check server logs.";
+    else if(s.status === "idle") trStatus.textContent = "";
+    else if(s.status === "completed"){
+      if(isFirst){
+        // Just reconnected/reloaded and learned the *last* run (possibly
+        // long ago) completed — informational only, don't yank the user
+        // to the QA tab for a run they didn't just watch happen.
+        trStatus.textContent = "Last run completed — QA report is up to date.";
+      } else {
+        trStatus.textContent = "Report updated — opening QA Report…";
+        setTimeout(function(){
+          var frame = document.getElementById("qaReportFrame");
+          if(frame) frame.src = "/allure-report/index.html?t=" + Date.now();
+          document.querySelector('nav.tabs button[data-tab="qa"]').click();
+          trStatus.textContent = "";
+        }, 1500);
+      }
+    }
+  }
+
+  function trConnectStream(){
+    if(trES) return;
+    trES = new EventSource("/api/test-runner/stream");
+    trOutput.textContent = "";
+    trES.addEventListener("line", function(e){ trAppendLine(JSON.parse(e.data)); });
+    trES.addEventListener("status", function(e){ trOnStatus(JSON.parse(e.data)); });
+  }
+
+  function initTestRunner(){
+    fetch("/api/test-runner/available").then(function(r){ return r.json(); }).then(function(d){
+      if(!d.available) return;
+      document.getElementById("testRunnerTabBtn").style.display = "";
+      trOutput = document.getElementById("testRunnerOutput");
+      trStatus = document.getElementById("testRunnerStatus");
+      trRunBtn = document.getElementById("runTestsBtn");
+      trCancelBtn = document.getElementById("cancelTestsBtn");
+      trSuiteSelect = document.getElementById("suiteSelect");
+
+      fetch("/api/test-runner/suites").then(function(r){ return r.json(); }).then(function(d){
+        trSuiteSelect.innerHTML = "";
+        d.suites.forEach(function(s){
+          var opt = document.createElement("option");
+          opt.value = s.id; opt.textContent = s.label;
+          trSuiteSelect.appendChild(opt);
+        });
+        trSuiteSelect.value = "__all__";
+      });
+
+      trRunBtn.addEventListener("click", function(){
+        fetch("/api/test-runner/run", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ suiteId: trSuiteSelect.value })
+        }).then(function(r){
+          if(r.status === 409) trStatus.textContent = "A run is already in progress.";
+        });
+      });
+      trCancelBtn.addEventListener("click", function(){
+        fetch("/api/test-runner/cancel", { method:"POST" });
+      });
+
+      trConnectStream();
+    }).catch(function(){ /* test-runner endpoint not present — feature stays hidden */ });
+  }
+  initTestRunner();
 
   document.getElementById("clearBtn").addEventListener("click", function(){
     if(!confirm("This will permanently erase every entry on this device. Continue?")) return;

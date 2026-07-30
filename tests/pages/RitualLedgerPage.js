@@ -12,6 +12,10 @@ class RitualLedgerPage {
     this.liftTable = page.locator("#liftTable tbody");
     this.grimoireFrame = page.frameLocator("#grimoireFrame");
     this.qaReportFrame = page.locator("#qaReportFrame");
+    this.testRunnerTabBtn = page.locator("#testRunnerTabBtn");
+    this.suiteSelect = page.locator("#suiteSelect");
+    this.runTestsBtn = page.locator("#runTestsBtn");
+    this.cancelTestsBtn = page.locator("#cancelTestsBtn");
   }
 
   async goto() {

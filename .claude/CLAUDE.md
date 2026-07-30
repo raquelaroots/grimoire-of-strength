@@ -61,6 +61,23 @@ pulled in from an unrelated example bundle — and has been corrected here.
 - **SQLite schema changes**: `src/schema.sql` only covers fresh databases. Existing databases need a
   matching `ensureColumn(...)` migration in `src/db.js` (see the `sets`/`difficulty` columns on `lifts`
   for the pattern).
+- **In-app test runner** (`src/testRunner.js`, "🧪 Test Runner" tab): lets the app run its own Playwright
+  suite and watch it live via SSE, with Cancel support and auto-regeneration of the Allure report on
+  completion. **Dev-only by construction, not by config** — `server.js` probes for `tests/`,
+  `@playwright/test`, and `tree-kill` via `require.resolve(...)` wrapped in try/catch at startup, and only
+  `require("./src/testRunner")` (registering its routes) if all three resolve. Since the production Docker
+  image installs with `npm ci --omit=dev` and `.dockerignore` excludes `tests/`, that probe is false there
+  automatically — no env var or build-time flag needed, and no risk of a missing devDependency crashing
+  the whole server (the probe only ever *checks* resolution, never loads the module until confirmed safe).
+  If you touch this file: keep `tree-kill` in `devDependencies` (never regular `dependencies`), never add
+  a top-level `require("tree-kill")`/`require("@playwright/test")` anywhere outside that guarded path, and
+  remember the suite-selector test-file argument passed to Playwright's CLI must stay forward-slashed
+  (`"tests/" + file`, not `path.join`) — Playwright matches that argument as a regex/glob against its own
+  POSIX-style internal paths, so a `path.join`-produced backslash path on Windows silently matches zero
+  tests. Process cancellation uses `tree-kill` (not plain `child.kill()`) specifically because Playwright's
+  own `webServer` config spawns a grandchild process (the port-3100 test instance of this app) that a bare
+  signal to the immediate child won't reach — killing the whole tree is what prevents that from being
+  orphaned and later falsely "reused" by `reuseExistingServer`.
 
 ## Supplementary skills/docs in this directory
 

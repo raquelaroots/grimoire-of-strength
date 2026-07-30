@@ -93,6 +93,43 @@ for (const table of EDITABLE_TABLES) {
   });
 }
 
+// Dev-only feature: lets the app run its own Playwright suite and watch it
+// live. Never unconditionally require()'d — the production Docker image
+// installs with `npm ci --omit=dev` and excludes tests/ from the build
+// context, so both probes below are false there, and this whole block (plus
+// testRunner.js's own top-level `require("tree-kill")`) is skipped entirely.
+// require.resolve() only checks that a module *would* resolve — it doesn't
+// execute it — so probing this way can never crash a build that lacks these
+// devDependencies.
+const TEST_RUNNER_AVAILABLE = (() => {
+  try {
+    return (
+      fs.existsSync(path.join(__dirname, "tests")) &&
+      !!require.resolve("@playwright/test/package.json", { paths: [__dirname] }) &&
+      !!require.resolve("tree-kill", { paths: [__dirname] })
+    );
+  } catch {
+    return false;
+  }
+})();
+
+app.get("/api/test-runner/available", (req, res) => {
+  res.json({ available: TEST_RUNNER_AVAILABLE });
+});
+
+let testRunner = null;
+if (TEST_RUNNER_AVAILABLE) {
+  testRunner = require("./src/testRunner");
+  testRunner.registerRoutes(app);
+}
+
+function shutdown() {
+  if (testRunner) testRunner.killActiveRun();
+  process.exit(0);
+}
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+
 app.listen(PORT, () => {
   console.log(`Ritual Ledger listening at http://localhost:${PORT}`);
   console.log(`Database: ${db.dbPath}`);

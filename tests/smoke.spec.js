@@ -159,6 +159,37 @@ test.describe("Ritual Ledger UI", () => {
     });
   });
 
+  test.describe("Test Runner", () => {
+    test("tab becomes visible and lists the real suites, without triggering a run", async ({ page }) => {
+      await feature("Test Runner");
+      await story("Tab visibility and suite population");
+      await severity(Severity.NORMAL);
+
+      // Deliberately never clicks Run: this suite's own webServer already
+      // occupies port 3100, and clicking Run would spawn a nested Playwright
+      // run trying to start a second instance of that same webServer — a
+      // reflexive conflict. The run/cancel/regenerate lifecycle itself was
+      // verified manually instead (see project notes).
+      const app = new RitualLedgerPage(page);
+
+      await step("tab is unhidden once availability is confirmed", async () => {
+        await expect(app.testRunnerTabBtn).toBeVisible();
+      });
+
+      await step("switching to it shows the suite picker and Run/Cancel controls", async () => {
+        await app.switchTab("testrunner");
+        await expect(app.activeView("testrunner")).toHaveClass(/active/);
+        await expect(app.runTestsBtn).toBeEnabled();
+        await expect(app.cancelTestsBtn).toBeDisabled();
+      });
+
+      await step("suite picker is populated from the real tests/ directory", async () => {
+        const optionValues = await app.suiteSelect.locator("option").allTextContents();
+        expect(optionValues).toEqual(["api.spec.js", "smoke.spec.js", "All tests"]);
+      });
+    });
+  });
+
   test.describe("QA Report", () => {
     test("QA report tab is wired to the served Allure report", async ({ page }) => {
       await feature("QA Report Serving");

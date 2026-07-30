@@ -31,6 +31,7 @@
   "devDependencies": {
     "@playwright/test": "^1.62.0",
     "allure": "^3.14.3",
-    "allure-playwright": "^3.10.2"
+    "allure-playwright": "^3.10.2",
+    "tree-kill": "^1.2.2"
   }
 }
