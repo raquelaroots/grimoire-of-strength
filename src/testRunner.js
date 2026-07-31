@@ -20,6 +20,7 @@ const CANCEL_GRACE_MS = 5000;
 // output before it reaches the browser. Built via RegExp(string) rather than
 // a /regex literal/ with embedded control characters, since raw control
 // bytes don't survive some text pipelines intact.
+// eslint-disable-next-line no-control-regex -- deliberately matches ESC/CSI control bytes
 const ANSI_RE = new RegExp("[\\x1B\\x9B][[\\]()#;?]*(?:\\d{1,4}(?:;\\d{0,4})*)?[a-zA-Z]", "g");
 
 // SSE clients persist across runs — only the per-run fields below get reset
@@ -174,6 +175,8 @@ async function regenerateAllureReport() {
         "Ritual Ledger QA Report",
         "--logo",
         "/assets/allure-logo.svg",
+        "--history-path",
+        path.join(REPO_ROOT, "data", "allure-history.jsonl"),
       ],
     ],
     [process.execPath, [path.join(REPO_ROOT, "src", "themeAllureReport.js")]],
@@ -259,7 +262,7 @@ function killActiveRun() {
   if (state.child) {
     try {
       treeKill(state.child.pid, "SIGKILL", () => {});
-    } catch (err) {
+    } catch {
       // best-effort on shutdown
     }
   }
