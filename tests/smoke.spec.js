@@ -184,8 +184,7 @@ test.describe("Ritual Ledger UI", () => {
       });
 
       await step("suite picker is populated from the real tests/ directory", async () => {
-        const optionValues = await app.suiteSelect.locator("option").allTextContents();
-        expect(optionValues).toEqual(["api.spec.js", "smoke.spec.js", "All tests"]);
+        await expect(app.suiteSelect.locator("option")).toHaveText(["api.spec.js", "smoke.spec.js", "All tests"]);
       });
     });
   });

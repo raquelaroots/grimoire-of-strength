@@ -8,9 +8,10 @@
     "generate": "node src/generatePlan.js",
     "test:e2e": "playwright test",
     "test:e2e:report": "playwright test && npm run allure:generate",
-    "allure:generate": "node src/cleanAllureReport.js && allure awesome ./allure-results --output ./allure-report --theme dark --report-name \"Ritual Ledger QA Report\" --logo /assets/allure-logo.svg && node src/themeAllureReport.js",
+    "allure:generate": "node src/cleanAllureReport.js && allure awesome ./allure-results --output ./allure-report --theme dark --report-name \"Ritual Ledger QA Report\" --logo /assets/allure-logo.svg --history-path ./data/allure-history.jsonl && node src/themeAllureReport.js",
     "allure:open": "allure open ./allure-report",
-    "docker:build": "node src/ensureAllureReportForDocker.js && docker compose build"
+    "docker:build": "node src/ensureAllureReportForDocker.js && docker compose build",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -29,9 +30,13 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.0",
     "allure": "^3.14.3",
     "allure-playwright": "^3.10.2",
+    "eslint": "^10.8.0",
+    "eslint-plugin-playwright": "^2.11.0",
+    "globals": "^17.8.0",
     "tree-kill": "^1.2.2"
   }
 }
