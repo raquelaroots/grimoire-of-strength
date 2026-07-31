@@ -202,7 +202,36 @@ test.describe("Ritual Ledger UI", () => {
       const app = new RitualLedgerPage(page);
       await app.switchTab("qa");
       await expect(app.activeView("qa")).toHaveClass(/active/);
-      await expect(app.qaReportFrame).toHaveAttribute("src", "/allure-report/index.html");
+      // Switching to this tab always reloads the iframe with a cache-busting
+      // ?t= param (see ritual-ledger.html's tab-click handler), so the src
+      // is asserted by prefix rather than an exact match.
+      await expect(app.qaReportFrame).toHaveAttribute("src", /^\/allure-report\/index\.html\?t=\d+$/);
+    });
+
+    test("revisiting the tab reloads the iframe fresh instead of reusing a stale instance", async ({ page }) => {
+      await feature("QA Report Serving");
+      await story("Iframe reloads on every tab visit");
+      await severity(Severity.NORMAL);
+
+      // Regression coverage for a real bug: the iframe only toggles CSS
+      // visibility on tab switch, so without an explicit reload on every
+      // visit, a report regenerated later (terminal, Test Runner, another
+      // tab) leaves a stale SPA instance running against files that a
+      // subsequent generation had already replaced — surfacing as
+      // "failed to fetch" when clicking into a test or opening Graphs/Timeline.
+      const app = new RitualLedgerPage(page);
+
+      await app.switchTab("qa");
+      const firstSrc = await app.qaReportFrame.getAttribute("src");
+
+      await app.switchTab("dashboard");
+      await app.switchTab("qa");
+      const secondSrc = await app.qaReportFrame.getAttribute("src");
+
+      // Comparing two captured values, not asserting a known expected one —
+      // toHaveAttribute() has no equivalent for "changed since last read".
+      // eslint-disable-next-line playwright/prefer-web-first-assertions
+      expect(secondSrc).not.toBe(firstSrc);
     });
   });
 });

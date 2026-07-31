@@ -2,6 +2,9 @@
 
 const { test, expect } = require("@playwright/test");
 const { epic, feature, story, severity, owner, step, Severity } = require("allure-js-commons");
+const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 test.describe("Ritual Ledger API", () => {
   test.beforeEach(async () => {
@@ -231,6 +234,44 @@ test.describe("Ritual Ledger API", () => {
         const ids = data.suites.map((s) => s.id).sort();
         expect(ids).toEqual(["__all__", "api", "smoke"]);
       });
+    });
+  });
+
+  test.describe("Allure History", () => {
+    // Regression coverage for a real bug: regenerating the report (whether
+    // via `npm run allure:generate` or the Test Runner's internal
+    // regenerateAllureReport(), which mirrors the same --history-path flag)
+    // must APPEND to data/allure-history.jsonl, not reset it. This exercises
+    // the actual shared generation pipeline directly rather than triggering
+    // a real Test Runner run — that would spawn a second Playwright process
+    // trying to bind the same port-3100 webServer this very suite already
+    // occupies, which fails under CI's `reuseExistingServer: !process.env.CI`.
+    // Since both call sites invoke the identical `allure awesome
+    // --history-path ...` step, proving the shared pipeline accumulates
+    // history here covers both entry points.
+    test("regenerating the report twice accumulates history rather than resetting it", async () => {
+      await feature("QA Report Serving");
+      await story("Allure history persists across regenerations");
+      await severity(Severity.NORMAL);
+
+      const REPO_ROOT = path.join(__dirname, "..");
+      const HISTORY_PATH = path.join(REPO_ROOT, "data", "allure-history.jsonl");
+
+      // allure creates the history file itself (mkdir + open) if missing, so
+      // by the time countLines() runs post-generate, it's always present.
+      const countLines = () => fs.readFileSync(HISTORY_PATH, "utf8").trim().split("\n").filter(Boolean).length;
+
+      const linesBefore = await step("regenerate once", async () => {
+        execSync("npm run allure:generate", { cwd: REPO_ROOT, stdio: "ignore" });
+        return countLines();
+      });
+
+      const linesAfter = await step("regenerate again", async () => {
+        execSync("npm run allure:generate", { cwd: REPO_ROOT, stdio: "ignore" });
+        return countLines();
+      });
+
+      expect(linesAfter).toBeGreaterThan(linesBefore);
     });
   });
 });

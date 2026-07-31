@@ -860,6 +860,18 @@
       btn.classList.add("active");
       document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
       document.getElementById("view-" + btn.dataset.tab).classList.add("active");
+      if(btn.dataset.tab === "qa"){
+        // Always reload fresh rather than reusing whatever the iframe last
+        // had loaded — the report can be regenerated (terminal, Test Runner,
+        // another tab) while this iframe's document + in-memory SPA state
+        // sit untouched, since switching tabs only toggles CSS visibility
+        // and never reloads it on its own. A stale SPA instance still
+        // references data files that a later `cleanAllureReport.js` wipe
+        // may have already replaced, which surfaces as "failed to fetch"
+        // when clicking into a test or opening Graphs/Timeline.
+        var frame = document.getElementById("qaReportFrame");
+        if(frame) frame.src = "/allure-report/index.html?t=" + Date.now();
+      }
     });
   });
 
@@ -1535,8 +1547,8 @@
       } else {
         trStatus.textContent = "Report updated — opening QA Report…";
         setTimeout(function(){
-          var frame = document.getElementById("qaReportFrame");
-          if(frame) frame.src = "/allure-report/index.html?t=" + Date.now();
+          // The qa tab's click handler itself reloads the iframe fresh —
+          // no need to set frame.src here too.
           document.querySelector('nav.tabs button[data-tab="qa"]').click();
           trStatus.textContent = "";
         }, 1500);
