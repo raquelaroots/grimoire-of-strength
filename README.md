@@ -13,7 +13,7 @@ The app underneath is real — a personal Node/Express + SQLite workout tracker 
 actually uses. But **the app is the system under test; the test engineering around it is the
 deliverable.** This repo exists to show how I approach quality on a real, working codebase:
 Playwright suites with deliberate structure, a themed and self-hosted Allure report, an
-in-app tool to run the whole suite live, and a CI pipeline that gates all of it.
+in-app tool to run test suites live, and a CI pipeline that gates all of it.
 
 Jump straight to [the QA / test engineering feature set](#qa-feature-set)
 or [try it yourself](#try-it-yourself).
@@ -51,9 +51,7 @@ or [try it yourself](#try-it-yourself).
   trend charts show real run-over-run history, not a single snapshot.
 - **An in-app Test Runner** — not just a `tests/` folder to take on faith. A "🧪 Test Runner"
   tab runs the real Playwright suite from the browser, streams output live over SSE, supports
-  mid-run cancellation (via `tree-kill`, since Playwright's own `webServer` spawns a
-  grandchild process a plain signal won't reach), and auto-regenerates the Allure report on
-  completion.
+  mid-run cancellation, and auto-regenerates the Allure report on completion.
 - **CI that actually gates this** — [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
   runs lint, the full Playwright suite (with `eslint-plugin-playwright` catching
   Playwright-specific antipatterns like a missing `await` on `expect()`), and a Docker build
@@ -79,7 +77,7 @@ Don't just read the `tests/` folder — run it:
 
 ---
 
-## ✦ What the app itself does
+## ✦ What the app does
 
 - **Ritual Log** — log workout sessions (duration, energy, notes), edit or delete them later.
 - **Body & Vessel** — track bodyweight and body measurements over time.
@@ -87,7 +85,7 @@ Don't just read the `tests/` folder — run it:
 - **Grimoire of Strength** — a printable, illuminated-manuscript-styled rendition of a
   workout plan, generated straight from a plain-markdown source file
   ([`custom-workout-plan.md`](custom-workout-plan.md)) via a small parser/generator pipeline.
-- **Data export/import** — full JSON backup and restore, no lock-in.
+- **Data export/import** — full JSON backup and restore.
 
 ---
 
@@ -142,7 +140,7 @@ opt-out was found. Worth knowing if you're serving `/allure-report` publicly you
 
 ## ✦ Why I Built This
 
-<!-- Personal note goes here. -->
+I'm a senior QA engineer with over 10 years of experience in test planning, execution, and automation. I advocate for and specialize in a shift-left testing strategy with a focus on building and automating test coverage across the entire system. Invest in quality at the foundational level, then enjoy the magic. ✨
 
 ---
 
