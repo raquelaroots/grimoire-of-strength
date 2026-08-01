@@ -27,6 +27,15 @@ module.exports = [
     },
   },
   {
+    // One-off Node tooling scripts, authored as ESM regardless of the package's "type": "commonjs".
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: { ...globals.node },
+    },
+  },
+  {
     // Playwright test files — same Node/CJS context, plus Playwright-specific lint rules.
     files: ["tests/**/*.js"],
     plugins: playwright.configs["flat/recommended"].plugins,

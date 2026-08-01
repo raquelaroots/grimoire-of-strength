@@ -1,15 +1,15 @@
 # Custom Strength & Mobility Plan
 
 **Frequency:** 2x/week (30 min) + optional 3rd short session (10–15 min)
-**Variety:** alternate Week A and Week B each week so the exercises stay fresh — both keep the same structure and hernia-safe rules
+**Variety:** alternate Week A and Week B each week so the exercises stay fresh — both keep the same structure and core-safe rules
 **Designed to complement:** running, hiking, spin, yoga
 **Goals:** mobility, flexibility, strength/muscle, bone density
-**Hernia-safe:** no heavy deadlifts/squats, no full sit-ups, no pull-ups, no breath-holding under load
+**Core-safe:** no heavy deadlifts/squats, no full sit-ups, no pull-ups, no breath-holding under load
 
 **General rules:**
 - Exhale on exertion; never hold your breath or bear down hard (no Valsalva).
 - "Light–moderate" weight = a load you could do 3–4 more reps with in reserve.
-- Stop any exercise that causes bulging, pulling, or pressure at the hernia site.
+- Stop any exercise that causes bulging, pulling, or pressure in the core or abdominal wall.
 
 ---
 
@@ -27,7 +27,7 @@
 | Rack-supported split squat or step-up | 8/leg | Use rack rail for balance, not heavy load |
 | Dumbbell Romanian deadlift | 10 | Light-moderate weight, soft knees, hinge from hips |
 | Standing dumbbell overhead press | 8–10 | Builds shoulder/upper-body bone density |
-| Barbell bench press (using the power rack) | 8–10 | Set safety pins just below chest height; lying position is low-strain for the hernia, keep feet flat, don't arch hard |
+| Barbell bench press (using the power rack) | 8–10 | Set safety pins just below chest height; lying position is low-strain on the core, keep feet flat, don't arch hard |
 | Single-arm dumbbell row (bench or rack-supported) | 10/arm | Keep spine neutral, no twisting |
 | Suitcase hold | 30–40 sec (or 3x/side if alternating one arm) | Stand tall holding a heavy dumbbell at your side, shoulders level, ribs stacked over hips — resists you leaning sideways. No walking space needed. |
 
@@ -54,7 +54,7 @@ Keeps the deadlift and bench press; swaps the rest for variety.
 | Rack-supported goblet squat | 8–10 | Light-moderate weight, controlled depth, rack there for safety — not heavy |
 | Dumbbell Romanian deadlift | 10 | Kept the same — light-moderate weight, soft knees, hinge from hips |
 | Single-arm dumbbell overhead press (alternating) | 8/side | Unilateral variety builds shoulder stability useful for hiking/running |
-| Barbell bench press (using the power rack) | 8–10 | Kept the same — set safety pins just below chest height, lying position stays low-strain for the hernia |
+| Barbell bench press (using the power rack) | 8–10 | Kept the same — set safety pins just below chest height, lying position stays low-strain on the core |
 | Bent-over double-arm dumbbell row | 10 | Hinge at hips, flat back, squeeze shoulder blades together |
 | Overhead waiter's hold | 20–30 sec/side | Hold a dumbbell overhead with a straight arm, stacked over your shoulder — builds shoulder bone density, no walking space needed |
 
@@ -138,7 +138,7 @@ Use this on a rest day, or split off from Workout 2 if you want a shorter, more 
 ---
 
 ## Progression Notes
-- Add weight only when you can complete all sets with good form and no strain at the hernia site.
+- Add weight only when you can complete all sets with good form and no strain in the core.
 - Every 3–4 weeks, add 1 rep per set or a small weight increase (2.5–5 lbs) rather than jumping sets/reps.
 - The holds, presses, and deadlifts are your main bone-density drivers here — prioritize consistency over heavy load.
-- If a movement ever feels wrong for your hernia, swap it for a bodyweight or banded version rather than pushing through.
+- If a movement ever feels wrong for your core or joints, swap it for a bodyweight or banded version rather than pushing through.

@@ -27,7 +27,7 @@ const META_KEYS = {
   variety: "variety",
   "designed to complement": "complement",
   goals: "goals",
-  "hernia-safe": "herniaSafe",
+  "core-safe": "coreSafe",
 };
 
 function parseBullet(line) {
@@ -126,7 +126,7 @@ function parsePlan(markdown) {
   const lines = markdown.split(/\r?\n/);
 
   const plan = {
-    meta: { title: "", frequency: "", variety: "", complement: "", goals: "", herniaSafe: "", generalRules: [] },
+    meta: { title: "", frequency: "", variety: "", complement: "", goals: "", coreSafe: "", generalRules: [] },
     workouts: [],
     optionalSession: null,
     progression: [],

@@ -78,7 +78,7 @@ test.describe("Ritual Ledger API", () => {
 
       const record = await step("create a bodyweight entry", async () => {
         const created = await request.post("/api/bodyweight", {
-          data: { date: "2026-01-01", weight: 150.5, unit: "lb" },
+          data: { date: "2026-01-01", weight: 100.1, unit: "lb" },
         });
         const body = await created.json();
         expect(body.id).toBeTruthy();
@@ -135,7 +135,7 @@ test.describe("Ritual Ledger API", () => {
 
       const record = await step("create a measurement entry", async () => {
         const created = await request.post("/api/measurements", {
-          data: { date: "2026-01-01", metric: "Waist", value: 30.5, unit: "in" },
+          data: { date: "2026-01-01", metric: "Waist", value: 10.5, unit: "in" },
         });
         const body = await created.json();
         expect(body.id).toBeTruthy();
