@@ -50,11 +50,11 @@ function renderCoverPage(meta) {
     <b>Variety:</b> ${escapeHtml(meta.variety)}<br>
     <b>Complements:</b> ${escapeHtml(meta.complement)}<br>
     <b>Goals:</b> ${escapeHtml(meta.goals)}<br>
-    <b>Hernia-safe:</b> ${escapeHtml(meta.herniaSafe)}
+    <b>Core-safe:</b> ${escapeHtml(meta.coreSafe)}
   </div>
 
   <div class="warning-seal">
-    <b>A Word of Caution</b> &mdash; before beginning this rite, consult a healer (physician or physical therapist) familiar with your hernia. ${rules}
+    <b>A Word of Caution</b> &mdash; before beginning this rite, consult a healer (physician or physical therapist) familiar with your injury history and any joint or core sensitivities. ${rules}
   </div>
 
   <div class="footer-mark">✦ turn the page to begin the first working ✦</div>
