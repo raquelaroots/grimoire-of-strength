@@ -1,0 +1,80 @@
+# Runs the Playwright suite against a throwaway server instance (playwright.config.js's
+# webServer spawns its own process on port 3100, writing to data/.playwright-test.sqlite
+# — a distinct file from the app's real data/ritual-ledger.sqlite, so sharing the `data`
+# PVC with the live app Deployment is safe), then regenerates the Allure report onto the
+# shared allure-report PVC. See scripts/run-tests-and-report.js for the exact logic (runs
+# tests, always regenerates the report even on failure, exits with the tests' own code).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ritual-ledger-test-runner
+  namespace: ritual-ledger
+  labels:
+    app.kubernetes.io/name: ritual-ledger
+    app.kubernetes.io/component: test-runner
+spec:
+  schedule: "0 6 * * *" # daily at 06:00 — a low-noise default for a demo cluster, trivially overridden
+  # Forbid, not Allow: overlapping runs would fight over the shared ReadWriteOnce-mounted
+  # data/allure-report state (two Playwright processes regenerating the same report
+  # concurrently is exactly the kind of race this repo's own Test Runner tab had to guard
+  # against with `concurrencyPolicy`-equivalent logic — see src/testRunner.js's 409 on an
+  # already-running run).
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 1800
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: ritual-ledger
+            app.kubernetes.io/component: test-runner
+        spec:
+          serviceAccountName: ritual-ledger-test-runner
+          automountServiceAccountToken: false
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            # Numeric, same reasoning as the app Deployment's securityContext: kubelet
+            # can't verify a name-only image USER is non-root. 1001 is `pwuser`, the
+            # non-root account Playwright's own base image ships (confirmed via
+            # `docker run --rm mcr.microsoft.com/playwright:v1.62.0-noble id pwuser`) —
+            # unrelated to the app image's own UID 1001 for `ritual`; same number by
+            # coincidence, not by design.
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+          containers:
+            - name: test-runner
+              image: ritual-ledger-test-runner:local
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: CI
+                  value: "true" # forces playwright.config.js's reuseExistingServer to
+                                 # false, so every run gets a genuinely fresh server
+              volumeMounts:
+                - name: data
+                  mountPath: /app/data
+                - name: allure-report
+                  mountPath: /app/allure-report
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 512Mi
+                limits:
+                  cpu: "1"
+                  memory: 1536Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                # readOnlyRootFilesystem: same reasoning as the app Deployment — the
+                # test run exercises POST /api/plan/regenerate, which writes to the
+                # image's filesystem at runtime.
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: ritual-ledger-data
+            - name: allure-report
+              persistentVolumeClaim:
+                claimName: ritual-ledger-allure-report

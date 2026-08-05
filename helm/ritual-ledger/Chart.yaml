@@ -1,0 +1,22 @@
+apiVersion: v2
+name: ritual-ledger
+description: >-
+  A witchy workout ledger that's also a Kubernetes/Helm deployment showcase — single-replica
+  app (embedded SQLite), a CronJob that runs its Playwright suite and regenerates a themed
+  Allure report on a schedule, and an optional Ingress.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - kubernetes
+  - helm
+  - playwright
+  - allure
+  - nodejs
+  - cka-demo
+home: https://github.com/raquelaroots/grimoire-of-strength
+sources:
+  - https://github.com/raquelaroots/grimoire-of-strength
+maintainers:
+  - name: raquelaroots
+    url: https://github.com/raquelaroots

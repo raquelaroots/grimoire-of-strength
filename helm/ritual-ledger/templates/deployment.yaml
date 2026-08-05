@@ -1,0 +1,74 @@
+{{- if gt (int .Values.replicaCount) 1 }}
+{{- fail "ritual-ledger uses an embedded single-writer SQLite database (better-sqlite3, WAL mode) — replicaCount must be 1. This is a real storage-layer constraint, not a soft default." }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ritual-ledger.fullname" . }}
+  labels:
+    {{- include "ritual-ledger.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "ritual-ledger.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: app
+  template:
+    metadata:
+      labels:
+        {{- include "ritual-ledger.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: app
+    spec:
+      serviceAccountName: {{ include "ritual-ledger.fullname" . }}-app
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: ritual-ledger
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: PORT
+              value: {{ .Values.service.targetPort | quote }}
+            - name: RITUAL_PLAN_PATH
+              value: /app/config/custom-workout-plan.md
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: allure-report
+              mountPath: /app/allure-report
+            - name: plan-config
+              mountPath: /app/config
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.periodSeconds }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "ritual-ledger.fullname" . }}-data
+        - name: allure-report
+          persistentVolumeClaim:
+            claimName: {{ include "ritual-ledger.fullname" . }}-allure-report
+        - name: plan-config
+          configMap:
+            # Whole-directory mount, not subPath: Kubernetes does not live-update
+            # subPath-mounted ConfigMap volumes, so this is what actually lets editing
+            # the ConfigMap update the served plan without a rollout.
+            name: {{ include "ritual-ledger.fullname" . }}-plan

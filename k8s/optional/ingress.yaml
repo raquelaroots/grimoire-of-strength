@@ -1,0 +1,22 @@
+# Optional — NOT applied by `kubectl apply -f k8s/` (that only picks up the parent
+# directory's files, not this subdirectory). Apply explicitly once you've edited `host`
+# and `ingressClassName` for your target cluster:
+#   kubectl apply -f k8s/optional/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ritual-ledger
+  namespace: ritual-ledger
+spec:
+  ingressClassName: nginx # change to match your cluster's ingress controller
+  rules:
+    - host: ritual-ledger.local # change to a real hostname for your cluster
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ritual-ledger
+                port:
+                  number: 80

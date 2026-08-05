@@ -58,6 +58,37 @@ pulled in from an unrelated example bundle — and has been corrected here.
   (`public/assets/allure-logo.svg`) is referenced via an absolute `/assets/...` path rather than copied
   into the report bundle, since `--logo` passes its value through verbatim — this only resolves because
   the app and the report are served from the same origin.
+- **Kubernetes / Helm** (`k8s/`, `helm/ritual-ledger/`): `k8s/` is raw, literal manifests (a CKA-style
+  showcase, no templating); `helm/ritual-ledger/` packages the identical resource set as a Helm chart.
+  Both were validated against a real local `kind` cluster while building them (not just statically
+  reviewed) — `kubectl apply --dry-run=client` needs live API-server discovery even in "client" mode
+  (confirmed empirically), so there's no way to validate manifest schemas fully offline; a throwaway
+  `kind` cluster is the actual verification path, not `--dry-run=client` alone. The app Deployment is
+  fixed at `replicas: 1` (WAL-mode `better-sqlite3` is single-writer) — the Helm chart enforces this with
+  a `fail` guard in `templates/deployment.yaml`, not just a comment. `readOnlyRootFilesystem` is
+  deliberately **not** set on either the app Deployment or the CronJob pod: `POST /api/plan/regenerate`
+  (exercised by `tests/api.spec.js`) writes `public/grimoire-of-strength.html` at runtime — don't
+  "helpfully" harden this without checking that route first. The plan `ConfigMap` is mounted as a whole
+  directory (`RITUAL_PLAN_PATH=/app/config/custom-workout-plan.md`), never via `subPath` — Kubernetes
+  does not live-update `subPath`-mounted ConfigMap volumes. The `CronJob`'s test-runner image is a
+  **separate Dockerfile stage** (`AS test-runner`, based on `mcr.microsoft.com/playwright:v1.62.0-noble`,
+  not `node:22-alpine`) because the production image excludes `tests/` and devDependencies by design, and
+  because Chromium's shared-library dependencies are painful on musl libc — that stage does its own full
+  `npm ci` rather than reusing `builder`'s `node_modules`, since a musl-compiled native binding
+  (`better-sqlite3`) won't load on the glibc base. Both the app and test-runner images use a **fixed
+  numeric UID/GID (1001)**, not Alpine's `-S` system-user auto-allocation (`node:22-alpine` already owns
+  UID/GID 1000 via its built-in `node` user) — `securityContext.runAsNonRoot: true` fails admission
+  against a name-only image `USER` with "cannot verify user is non-root," confirmed against a real
+  cluster; `runAsUser`/`runAsGroup`/`fsGroup` in both `k8s/05-deployment.yaml`/`07-cronjob.yaml` and the
+  Helm chart's `values.yaml` must stay in sync with the Dockerfile's `adduser -u 1001`. Both PVCs
+  (`data`, `allure-report`) carry `helm.sh/resource-policy: keep` in the Helm chart — **Helm deletes
+  templated PVCs on `helm uninstall` by default**, a real gotcha caught by actually running
+  `helm uninstall` against a live release, not something to assume away. `src/cleanAllureReport.js`
+  removes `allure-report/`'s *contents*, not the directory itself, specifically because that directory is
+  a bind/PVC mount point in Docker and Kubernetes — `fs.rmSync` on a mount point itself fails with EBUSY
+  ("Device or resource busy"), also only surfaced by actually running the CronJob against a real cluster.
+  No container registry is wired up — images are built locally and loaded via `kind load docker-image` /
+  `minikube image load`; this is a deliberate, current-scope decision, not an oversight.
 - **SQLite schema changes**: `src/schema.sql` only covers fresh databases. Existing databases need a
   matching `ensureColumn(...)` migration in `src/db.js` (see the `sets`/`difficulty` columns on `lifts`
   for the pattern).

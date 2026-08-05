@@ -1,0 +1,21 @@
+# Holds the generated Allure "Awesome" report; the Deployment serves it, the CronJob
+# regenerates it. See values.yaml's persistence comment for the ReadWriteOnce assumption.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "ritual-ledger.fullname" . }}-allure-report
+  labels:
+    {{- include "ritual-ledger.labels" . | nindent 4 }}
+  annotations:
+    # See pvc-data.yaml's comment — same reasoning: an uninstall shouldn't erase
+    # Allure's run-history trend data along with the release.
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - {{ .Values.persistence.allureReport.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.allureReport.size }}
+  {{- if .Values.persistence.allureReport.storageClassName }}
+  storageClassName: {{ .Values.persistence.allureReport.storageClassName }}
+  {{- end }}

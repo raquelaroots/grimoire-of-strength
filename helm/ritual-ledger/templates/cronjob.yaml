@@ -1,0 +1,58 @@
+# Runs the Playwright suite against a throwaway server instance (playwright.config.js's
+# webServer spawns its own process on port 3100, writing to a distinct
+# data/.playwright-test.sqlite file — safe to share the `data` PVC with the live app),
+# then regenerates the Allure report onto the shared allure-report PVC. See
+# scripts/run-tests-and-report.js for the exact logic.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "ritual-ledger.fullname" . }}-test-runner
+  labels:
+    {{- include "ritual-ledger.labels" . | nindent 4 }}
+    app.kubernetes.io/component: test-runner
+spec:
+  schedule: {{ .Values.testRunner.schedule | quote }}
+  # Forbid, not Allow: overlapping runs would fight over the shared ReadWriteOnce-mounted
+  # data/allure-report state.
+  concurrencyPolicy: {{ .Values.testRunner.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.testRunner.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.testRunner.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.testRunner.backoffLimit }}
+      activeDeadlineSeconds: {{ .Values.testRunner.activeDeadlineSeconds }}
+      template:
+        metadata:
+          labels:
+            {{- include "ritual-ledger.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: test-runner
+        spec:
+          serviceAccountName: {{ include "ritual-ledger.fullname" . }}-test-runner
+          automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
+          restartPolicy: Never
+          securityContext:
+            {{- toYaml .Values.testRunner.podSecurityContext | nindent 12 }}
+          containers:
+            - name: test-runner
+              image: "{{ .Values.testRunner.image.repository }}:{{ .Values.testRunner.image.tag }}"
+              imagePullPolicy: {{ .Values.testRunner.image.pullPolicy }}
+              env:
+                - name: CI
+                  value: "true" # forces playwright.config.js's reuseExistingServer to
+                                 # false, so every run gets a genuinely fresh server
+              volumeMounts:
+                - name: data
+                  mountPath: /app/data
+                - name: allure-report
+                  mountPath: /app/allure-report
+              resources:
+                {{- toYaml .Values.testRunner.resources | nindent 16 }}
+              securityContext:
+                {{- toYaml .Values.testRunner.securityContext | nindent 16 }}
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: {{ include "ritual-ledger.fullname" . }}-data
+            - name: allure-report
+              persistentVolumeClaim:
+                claimName: {{ include "ritual-ledger.fullname" . }}-allure-report

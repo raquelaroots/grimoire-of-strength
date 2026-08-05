@@ -1,0 +1,20 @@
+Ritual Ledger is deployed. It's a single-replica app (embedded SQLite — see values.yaml's
+replicaCount comment) with a CronJob that runs its Playwright suite and regenerates its
+Allure report on a schedule ({{ .Values.testRunner.schedule }}).
+
+1. Check the app is up:
+   kubectl -n {{ .Release.Namespace }} get pods
+
+2. Reach it locally:
+   kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "ritual-ledger.fullname" . }} 8080:{{ .Values.service.port }}
+   curl http://localhost:8080/api/health
+
+{{- if .Values.ingress.enabled }}
+3. Or via the Ingress you enabled, once DNS/hosts resolves {{ .Values.ingress.host }}:
+   http://{{ .Values.ingress.host }}{{ .Values.ingress.path }}
+{{- end }}
+
+To trigger a test run + report regeneration right now instead of waiting for the schedule:
+   kubectl -n {{ .Release.Namespace }} create job --from=cronjob/{{ include "ritual-ledger.fullname" . }}-test-runner manual-run-1
+
+Then visit /allure-report/ on the app once that Job completes.

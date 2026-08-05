@@ -1,0 +1,22 @@
+# Holds the app's real better-sqlite3 database (WAL + SHM sidecar files) at /app/data,
+# plus data/allure-history.jsonl (Allure's --history-path trend file) written by the
+# test-runner CronJob. Shared by both the Deployment and the CronJob so run-history
+# persists across CronJob runs instead of resetting on every schedule tick.
+#
+# ReadWriteOnce, not ReadWriteMany: this assumes a single-node dev/demo cluster (kind,
+# minikube, Docker Desktop Kubernetes, k3s) where both consumers land on the same node —
+# the realistic audience for this showcase. A genuine multi-node production deployment
+# would need an RWX-capable StorageClass (NFS, EFS, Longhorn, etc.) instead.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ritual-ledger-data
+  namespace: ritual-ledger
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  # storageClassName intentionally omitted — uses the cluster's default StorageClass.
+  # Set explicitly if your cluster doesn't have one.
