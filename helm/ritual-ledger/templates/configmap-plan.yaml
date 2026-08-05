@@ -1,0 +1,15 @@
+# The plan content below is a maintained COPY of the repo root's custom-workout-plan.md,
+# not a live reference — Helm's .Files.Get can only read files inside the chart's own
+# directory tree (helm/ritual-ledger/files/), not ../../custom-workout-plan.md. This is a
+# deliberate, documented showcase-scope limitation (see helm/ritual-ledger/README.md):
+# whenever the root plan file changes, re-copy it here too.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ritual-ledger.fullname" . }}-plan
+  labels:
+    {{- include "ritual-ledger.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+data:
+  custom-workout-plan.md: |
+{{ .Files.Get "files/custom-workout-plan.md" | indent 4 }}

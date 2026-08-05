@@ -4,9 +4,10 @@ data/
 test-results/
 playwright-report/
 allure-results/
-tests/
-playwright.config.js
-scripts/
 readme-assets/
 # allure-report/ is intentionally NOT excluded — the Dockerfile COPYs it in
 # (see src/ensureAllureReportForDocker.js for the "doesn't exist yet" case)
+# tests/, playwright.config.js, and scripts/ are intentionally NOT excluded either —
+# the test-runner Dockerfile stage COPYs them in for the K8s CronJob image. The
+# production `runtime` stage is unaffected: it COPYs an explicit allowlist, never
+# these, regardless of what's present in the build context.

@@ -1,0 +1,98 @@
+# replicas is fixed at 1 and MUST stay that way: src/db.js runs better-sqlite3 in WAL
+# mode, a single-process, single-writer embedded database. There's no HPA here, and
+# there shouldn't be one — this is a deliberate constraint of the storage layer, not an
+# oversight. (The Helm chart's templates/deployment.yaml enforces this with a `fail`
+# guard rather than relying on this comment alone.)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ritual-ledger
+  namespace: ritual-ledger
+  labels:
+    app.kubernetes.io/name: ritual-ledger
+    app.kubernetes.io/component: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ritual-ledger
+      app.kubernetes.io/component: app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ritual-ledger
+        app.kubernetes.io/component: app
+    spec:
+      serviceAccountName: ritual-ledger-app
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        # runAsUser/runAsGroup must be explicit numeric values, not left to the image's
+        # own USER directive: confirmed against a real cluster while building this
+        # manifest that `runAsNonRoot: true` alone fails admission with "cannot verify
+        # user is non-root" against a name-only USER. 1001/1001 matches the Dockerfile's
+        # `addgroup -g 1001 -S ritual && adduser -u 1001 -S ritual -G ritual` exactly —
+        # keep these in sync if that ever changes. fsGroup so the PVC-backed volumes
+        # below are actually writable by that UID (kubelet chowns their group on mount).
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+        - name: ritual-ledger
+          image: ritual-ledger:local
+          imagePullPolicy: IfNotPresent # local images loaded via `kind load docker-image` /
+                                         # `minikube image load` — no registry is used yet.
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000" # matches the image's own default; explicit here for readability
+            - name: RITUAL_PLAN_PATH
+              value: /app/config/custom-workout-plan.md
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: allure-report
+              mountPath: /app/allure-report
+            - name: plan-config
+              mountPath: /app/config
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem is deliberately NOT set to true: POST
+            # /api/plan/regenerate (exercised by tests/api.spec.js) writes
+            # public/grimoire-of-strength.html at runtime, inside the image's own
+            # filesystem. Setting this to true would break a real, tested code path.
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ritual-ledger-data
+        - name: allure-report
+          persistentVolumeClaim:
+            claimName: ritual-ledger-allure-report
+        - name: plan-config
+          configMap:
+            # Mounted as a whole directory, not via subPath: Kubernetes does not
+            # live-update subPath-mounted ConfigMap volumes (a well-known limitation),
+            # so a whole-directory mount is what actually lets editing the ConfigMap
+            # update the served plan without a rollout.
+            name: ritual-ledger-plan

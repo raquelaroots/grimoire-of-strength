@@ -1,0 +1,16 @@
+# Holds the generated Allure "Awesome" report at /app/allure-report. The Deployment
+# serves it via express.static (reads from disk per-request, no restart needed when the
+# CronJob writes a fresh report); the CronJob regenerates it on every scheduled run.
+# Same ReadWriteOnce/single-node assumption as ritual-ledger-data — see its comment.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ritual-ledger-allure-report
+  namespace: ritual-ledger
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 512Mi
+  # storageClassName intentionally omitted — uses the cluster's default StorageClass.

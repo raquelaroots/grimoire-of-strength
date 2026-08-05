@@ -19,7 +19,7 @@ module.exports = [
   js.configs.recommended,
   {
     // Node-context CommonJS: server, backend helpers, Playwright config.
-    files: ["server.js", "src/**/*.js", "playwright.config.js", "eslint.config.js"],
+    files: ["server.js", "src/**/*.js", "playwright.config.js", "eslint.config.js", "scripts/*.js"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "commonjs",

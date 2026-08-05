@@ -1,0 +1,25 @@
+# Holds the real better-sqlite3 database plus data/allure-history.jsonl (Allure's
+# --history-path trend file), shared by the Deployment and the CronJob so run history
+# persists across CronJob runs. See values.yaml's persistence comment for the
+# ReadWriteOnce/single-node-cluster assumption.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "ritual-ledger.fullname" . }}-data
+  labels:
+    {{- include "ritual-ledger.labels" . | nindent 4 }}
+  annotations:
+    # Without this, `helm uninstall` deletes this PVC along with everything else it
+    # manages — confirmed against a real cluster while building this chart (a common
+    # misconception is that Helm leaves PVCs alone by default; it doesn't unless told
+    # to). This is the real database, so an uninstall must not silently destroy it.
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - {{ .Values.persistence.data.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.data.size }}
+  {{- if .Values.persistence.data.storageClassName }}
+  storageClassName: {{ .Values.persistence.data.storageClassName }}
+  {{- end }}

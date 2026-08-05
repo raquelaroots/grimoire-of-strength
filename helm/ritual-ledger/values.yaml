@@ -1,0 +1,109 @@
+# Default values for ritual-ledger.
+# No container registry is wired up yet — build locally and load into your cluster:
+#   docker build --target runtime -t ritual-ledger:local .
+#   docker build --target test-runner -t ritual-ledger-test-runner:local .
+#   kind load docker-image ritual-ledger:local ritual-ledger-test-runner:local --name <cluster>
+#   # or: minikube image load ritual-ledger:local ritual-ledger-test-runner:local
+
+image:
+  repository: ritual-ledger
+  tag: local
+  pullPolicy: IfNotPresent # local-only images — never actually pulled from a registry
+
+# replicaCount MUST stay 1: src/db.js runs better-sqlite3 in WAL mode, a single-process,
+# single-writer embedded database. templates/deployment.yaml `fail`s the render if this
+# is set above 1 — this isn't a soft default, it's a real constraint of the storage layer.
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  path: /api/health
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# UID/GID baked into the app image via `addgroup -g 1001 -S ritual && adduser -u 1001 -S
+# ritual -G ritual` (see Dockerfile) — kept here rather than hardcoded in the template so
+# it's visible/overridable without editing YAML, though changing it without also changing
+# the Dockerfile will break the pod (runAsNonRoot needs a numeric UID that matches the
+# image's actual user, confirmed against a real cluster while building this chart).
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+
+securityContext:
+  allowPrivilegeEscalation: false
+  # readOnlyRootFilesystem is deliberately NOT set: POST /api/plan/regenerate (exercised
+  # by tests/api.spec.js) writes public/grimoire-of-strength.html at runtime.
+
+testRunner:
+  image:
+    repository: ritual-ledger-test-runner
+    tag: local
+    pullPolicy: IfNotPresent
+  schedule: "0 6 * * *" # daily at 06:00 — low-noise default for a demo cluster
+  concurrencyPolicy: Forbid # overlapping runs would fight over the shared RWO PVC state
+  backoffLimit: 0
+  activeDeadlineSeconds: 1800
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1536Mi
+  # 1001 here is Playwright's own base image's `pwuser` account, unrelated to the app
+  # image's UID 1001 above — same number by coincidence, not by design. Confirmed via
+  # `docker run --rm mcr.microsoft.com/playwright:v1.62.0-noble id pwuser`.
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+  securityContext:
+    allowPrivilegeEscalation: false
+
+persistence:
+  data:
+    size: 1Gi
+    storageClassName: "" # "" = cluster default StorageClass
+    accessMode: ReadWriteOnce
+  allureReport:
+    size: 512Mi
+    storageClassName: ""
+    accessMode: ReadWriteOnce
+  # ReadWriteOnce, not ReadWriteMany: this chart assumes a single-node dev/demo cluster
+  # (kind, minikube, Docker Desktop Kubernetes, k3s) where the app Deployment and the
+  # CronJob's pods land on the same node. A genuine multi-node production deployment
+  # would need an RWX-capable StorageClass (NFS, EFS, Longhorn, etc.) instead — swap
+  # accessMode above and provide a matching storageClassName.
+
+ingress:
+  enabled: false
+  className: ""
+  host: ritual-ledger.local
+  path: /
+  pathType: Prefix
+  tls: []
+
+serviceAccount:
+  create: true
+  automountServiceAccountToken: false # neither workload calls the Kubernetes API
+
+nameOverride: ""
+fullnameOverride: ""
