@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "prepare": "node -e \"const fs=require('fs');if(fs.existsSync('.git')){try{require('child_process').execSync('git config core.hooksPath .githooks',{stdio:'ignore'})}catch(e){}}\"",
     "start": "node server.js",
     "generate": "node src/generatePlan.js",
     "test:e2e": "playwright test",

@@ -89,6 +89,22 @@ pulled in from an unrelated example bundle — and has been corrected here.
   ("Device or resource busy"), also only surfaced by actually running the CronJob against a real cluster.
   No container registry is wired up — images are built locally and loaded via `kind load docker-image` /
   `minikube image load`; this is a deliberate, current-scope decision, not an oversight.
+- **Secret-scanning git hooks** (`.githooks/`, `scripts/scan-secrets.js`): `pre-commit` scans staged
+  changes and `pre-push` scans every outgoing commit for credential-shaped patterns (AWS/GitHub/Slack/
+  Stripe/Google key formats, PEM private key headers, generic `password/secret/token/api_key = "..."`
+  assignments) before letting the commit/push through, blocking with a clear message on a match.
+  Deliberately **not** `gitleaks`/`truffleHog` — a hand-rolled, curated pattern list keeps this dependency-
+  free so it works the moment someone clones the repo and runs `npm install`, at the cost of being a much
+  smaller pattern set than a maintained scanner. Deliberately scoped to credentials, not general PII
+  (email/phone/address) — those are prone to false positives on every commit and are handled by periodic
+  manual review instead (see the public-release-prep and later re-scrape work). Wired up via
+  `package.json`'s `"prepare": "git config core.hooksPath .githooks"`, which runs automatically on
+  `npm install` — this is the same mechanism tools like Husky use internally, adopted directly instead of
+  taking Husky as a dependency for two small POSIX-sh scripts. `core.fileMode` is `false` on this Windows
+  dev machine (Windows has no native executable bit), so the hook scripts' `+x` bit was set explicitly via
+  `git update-index --chmod=+x` rather than relying on a filesystem `chmod` alone — verify with
+  `git ls-files -s .githooks/` (mode should read `100755`, not `100644`) if these files are ever re-added.
+  Both hooks are bypassable with `--no-verify` (standard git behavior) for confirmed false positives.
 - **SQLite schema changes**: `src/schema.sql` only covers fresh databases. Existing databases need a
   matching `ensureColumn(...)` migration in `src/db.js` (see the `sets`/`difficulty` columns on `lifts`
   for the pattern).
