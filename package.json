@@ -12,7 +12,8 @@
     "allure:open": "allure open ./allure-report",
     "docker:build": "node src/ensureAllureReportForDocker.js && docker compose build",
     "lint": "eslint .",
-    "generate:readme-gifs": "node scripts/generate-readme-gifs.mjs"
+    "generate:readme-gifs": "node scripts/generate-readme-gifs.mjs",
+    "generate:pwa-icons": "node scripts/generate-pwa-icons.mjs"
   },
   "repository": {
     "type": "git",
