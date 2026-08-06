@@ -9,3 +9,5 @@ playwright-report/
 allure-results/
 allure-report/
 data/allure-history.jsonl
+*.local.md
+*.local.ps1
