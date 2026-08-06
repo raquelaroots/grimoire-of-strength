@@ -24,12 +24,11 @@
 ### Main Circuit (~20 min) — 2–3 rounds, minimal rest between exercises, 60–90 sec between rounds (do 2 rounds if you're short on time, to stay within 30 min total)
 | Exercise | Reps/Time | Notes |
 |---|---|---|
-| Rack-supported split squat or step-up | 8/leg | Use rack rail for balance, not heavy load |
-| Dumbbell Romanian deadlift | 10 | Light-moderate weight, soft knees, hinge from hips |
+| Goblet Squads | 10 |  |
+| Romanian deadlift (RDLs ✨) | 10 | soft knees, hinge from hips |
 | Standing dumbbell overhead press | 8–10 | Builds shoulder/upper-body bone density |
-| Barbell bench press (using the power rack) | 8–10 | Set safety pins just below chest height; lying position is low-strain on the core, keep feet flat, don't arch hard |
+| Barbell bench press | 8–10 | Set safety pins just below chest height; lying position is low-strain on the core, keep feet flat, don't arch hard |
 | Single-arm dumbbell row (bench or rack-supported) | 10/arm | Keep spine neutral, no twisting |
-| Suitcase hold | 30–40 sec (or 3x/side if alternating one arm) | Stand tall holding a heavy dumbbell at your side, shoulders level, ribs stacked over hips — resists you leaning sideways. No walking space needed. |
 
 ### Cool-down Stretches (5 min)
 - Standing quad stretch — 30 sec/side
@@ -51,12 +50,11 @@ Keeps the deadlift and bench press; swaps the rest for variety.
 ### Main Circuit (~20 min) — 2–3 rounds, minimal rest between exercises, 60–90 sec between rounds
 | Exercise | Reps/Time | Notes |
 |---|---|---|
-| Rack-supported goblet squat | 8–10 | Light-moderate weight, controlled depth, rack there for safety — not heavy |
-| Dumbbell Romanian deadlift | 10 | Kept the same — light-moderate weight, soft knees, hinge from hips |
+| Goblet squat | 10 | controlled depth |
+| Romanian deadlift (RDLs ✨) | 10 | soft knees, hinge from hips |
 | Single-arm dumbbell overhead press (alternating) | 8/side | Unilateral variety builds shoulder stability useful for hiking/running |
-| Barbell bench press (using the power rack) | 8–10 | Kept the same — set safety pins just below chest height, lying position stays low-strain on the core |
+| Barbell bench press | 8–10 | lying position stays low-strain on the core |
 | Bent-over double-arm dumbbell row | 10 | Hinge at hips, flat back, squeeze shoulder blades together |
-| Overhead waiter's hold | 20–30 sec/side | Hold a dumbbell overhead with a straight arm, stacked over your shoulder — builds shoulder bone density, no walking space needed |
 
 ### Cool-down Stretches (5 min)
 - Standing quad stretch — 30 sec/side
@@ -109,7 +107,7 @@ Keeps the deadlift and bench press; swaps the rest for variety.
 | Bear crawl hold | 20–30 sec | Hands and toes on the mat, knees hovering just off the floor, flat back — no breath-holding |
 | Forearm plank with shoulder taps | 10 taps/side | Feet a bit wider for stability; keep hips still as you tap |
 | Single-leg glute bridge | 8–10/side | Keep hips level, don't let them dip |
-| Prone superman hold (gentle) | 15–20 sec | Lift arms and legs slightly off the mat, low intensity — light posterior-chain work, not a hard arch |
+| Standing marches | Up to 50 | Light weights held above head |
 
 ### Mobility Flow (5 min)
 - Windmill stretch — 6/side (stand wide, hinge slightly forward, rotate reaching one hand to the sky while the other reaches down)
