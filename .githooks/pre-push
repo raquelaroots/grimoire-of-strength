@@ -1,0 +1,30 @@
+#!/bin/sh
+# Blocks the push if any outgoing commit contains secret-shaped patterns.
+# See scripts/scan-secrets.js for the pattern list and reasoning.
+# Bypass with `git push --no-verify` if you're certain of a false positive.
+#
+# Git calls this hook with lines of "<local ref> <local sha1> <remote ref>
+# <remote sha1>" on stdin, one per ref being pushed.
+
+EMPTY_TREE=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+ZERO=0000000000000000000000000000000000000000
+
+while read local_ref local_sha remote_ref remote_sha; do
+  # Deleting a remote ref (local_sha is all-zeros) — nothing to scan.
+  if [ "$local_sha" = "$ZERO" ]; then
+    continue
+  fi
+
+  base="$remote_sha"
+  if [ "$base" = "$ZERO" ]; then
+    # Pushing a new branch the remote doesn't have yet — diff the whole
+    # thing against the empty tree instead of a nonexistent base commit.
+    base="$EMPTY_TREE"
+  fi
+
+  if ! git diff "$base..$local_sha" -- . ':!node_modules' | node scripts/scan-secrets.js; then
+    exit 1
+  fi
+done
+
+exit 0

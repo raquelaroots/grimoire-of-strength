@@ -1,0 +1,6 @@
+#!/bin/sh
+# Blocks the commit if staged changes contain secret-shaped patterns.
+# See scripts/scan-secrets.js for the pattern list and reasoning.
+# Bypass with `git commit --no-verify` if you're certain of a false positive.
+
+git diff --cached -- . ':!node_modules' | node scripts/scan-secrets.js

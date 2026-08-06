@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
     "start": "node server.js",
     "generate": "node src/generatePlan.js",
     "test:e2e": "playwright test",
