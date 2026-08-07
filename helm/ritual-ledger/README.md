@@ -1,11 +1,8 @@
 # ritual-ledger
 
-A Helm chart for [Ritual Ledger](https://github.com/raquelaroots/grimoire-of-strength) — deploys
-the app (single replica, embedded SQLite) plus a CronJob that runs its Playwright test suite and
-regenerates its Allure report on a schedule.
+A Helm chart for [Ritual Ledger](https://github.com/raquelaroots/grimoire-of-strength) — deploys the app (single replica, embedded SQLite) plus a `CronJob` that runs its Playwright test suite and regenerates its Allure report on a schedule.
 
-This chart packages the same resources as the repo's raw `k8s/` manifests, templated. If you want
-to read literal, unrendered YAML first, start there; come here once you want values-driven
+This chart packages the same resources as the repo's raw `k8s/` manifests, templated. If you want to read literal, unrendered YAML first, start there; come here once you want values-driven
 configuration.
 
 ## Prerequisites
@@ -59,7 +56,7 @@ kubectl delete namespace ritual-ledger
 | `ingress.enabled` | `false` | Set `true` and configure `ingress.host`/`ingress.className` to expose externally |
 | `serviceAccount.create` | `true` | Dedicated, token-unmounted ServiceAccounts for both workloads |
 
-## Known tradeoffs (deliberate, not oversights)
+## Known tradeoffs 
 
 - **`ReadWriteOnce`, not `ReadWriteMany`.** This chart assumes a single-node dev/demo cluster
   (kind, minikube, Docker Desktop Kubernetes, k3s) where the app Deployment and the CronJob's
