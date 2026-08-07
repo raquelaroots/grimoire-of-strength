@@ -27,13 +27,7 @@ in-app tool to run test suites live, and a CI pipeline that gates all of it.
 Jump straight to [the QA / test engineering feature set](#qa-feature-set),
 [try it yourself](#try-it-yourself), or [the Kubernetes/Helm deployment](#kubernetes-helm).
 
----
-
-## ✦ See it in motion
-
-| The app | The Test Runner, live | The QA Report, self-hosted |
-|---|---|---|
-| ![Logging a ritual on the dashboard](readme-assets/demo-dashboard.gif) | ![Running the Playwright suite from the browser](readme-assets/demo-test-runner.gif) | ![The themed Allure report served in-app](readme-assets/demo-qa-report.gif) |
+![Running the Playwright suite live from the browser's Test Runner tab](readme-assets/testrunner.gif)
 
 ---
 
@@ -66,6 +60,8 @@ Jump straight to [the QA / test engineering feature set](#qa-feature-set),
   Playwright-specific antipatterns like a missing `await` on `expect()`), and a Docker build
   in parallel on every PR, uploading the Playwright HTML and Allure reports as artifacts even
   when a run fails.
+
+![The themed Allure report, served in-app](readme-assets/qareport.gif)
 
 ---
 
@@ -152,6 +148,8 @@ integration yet.
   workout plan, generated straight from a plain-markdown source file
   ([`custom-workout-plan.md`](custom-workout-plan.md)) via a small parser/generator pipeline.
 - **Data export/import** — full JSON backup and restore.
+
+![Logging a ritual and watching the dashboard update](readme-assets/theapp.gif)
 
 ---
 
