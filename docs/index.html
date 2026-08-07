@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raquel Prieto-Canter — Senior QA Engineer</title>
+<meta name="description" content="Senior QA Engineer, 10+ years — test strategy, automation engineering, and platform delivery, currently in an enterprise Kubernetes environment.">
+
+<!-- Open Graph tags so this reads well as a shared LinkedIn link card.
+     No og:image yet — a GIF's first frame makes a poor static preview;
+     add a proper static preview image here later if desired. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Raquel Prieto-Canter — Senior QA Engineer">
+<meta property="og:description" content="10+ years in test strategy, automation engineering, and platform delivery — currently in an enterprise Kubernetes environment.">
+<meta property="og:url" content="https://raquelaroots.github.io/grimoire-of-strength/">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0d0812;
+    --ink-panel:#160f1e;
+    --ink-panel2:#1d1426;
+    --line: rgba(242,236,233,0.10);
+    --text:#f2ece9;
+    --muted:#a89bb0;
+    --indigo:#4f3cc9;
+    --pink:#d43e82;
+    --gold:#b8902a;
+  }
+  :root[data-theme="light"]{
+    --ink:#f7f3ef;
+    --ink-panel:#ffffff;
+    --ink-panel2:#f1e9f4;
+    --line: rgba(32,21,38,0.10);
+    --text:#201526;
+    --muted:#6b5f74;
+    --indigo:#4f3cc9;
+    --pink:#c22c72;
+    --gold:#946e1f;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --ink:#f7f3ef;
+      --ink-panel:#ffffff;
+      --ink-panel2:#f1e9f4;
+      --line: rgba(32,21,38,0.10);
+      --text:#201526;
+      --muted:#6b5f74;
+      --indigo:#4f3cc9;
+      --pink:#c22c72;
+      --gold:#946e1f;
+    }
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -5%, rgba(79,60,201,0.16), transparent 55%),
+      radial-gradient(ellipse 700px 500px at 90% 10%, rgba(212,62,130,0.10), transparent 50%),
+      var(--ink);
+    color:var(--text);
+    font-family: 'Space Grotesk', ui-sans-serif, "Segoe UI", -apple-system, Roboto, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{ font-family: 'Cormorant Garamond', Georgia, serif; }
+
+  .shell{ max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding: 88px 0 64px;
+    display:grid;
+    grid-template-columns: auto 1fr;
+    gap: 40px;
+    align-items:center;
+  }
+  @media (max-width: 620px){
+    .hero{ grid-template-columns: 1fr; text-align:center; justify-items:center; }
+  }
+  .portrait{
+    width: 132px; height: 132px;
+    border-radius: 50%;
+    flex: none;
+    background: conic-gradient(from 210deg, var(--indigo), var(--pink), var(--gold), var(--indigo));
+    padding: 4px;
+    box-shadow: 0 0 40px rgba(212,62,130,0.22);
+  }
+  /* To swap in a real photo later: replace the .portrait-inner div below with
+     <img src="assets/headshot.jpg" alt="Raquel Prieto-Canter" class="portrait-inner"
+     style="object-fit:cover;"> — same 132px circle, same conic-gradient ring frame. */
+  .portrait-inner{
+    width:100%; height:100%;
+    border-radius:50%;
+    background: var(--ink-panel);
+    display:flex; align-items:center; justify-content:center;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-align:center;
+    line-height:1.4;
+  }
+  .eyebrow{
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 14px;
+  }
+  h1.name{
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(34px, 5vw, 50px);
+    line-height:1.08;
+    margin: 0 0 8px;
+    text-wrap: balance;
+    letter-spacing: 0.005em;
+  }
+  .role{
+    font-size: 18px;
+    color: var(--text);
+    margin: 0 0 6px;
+  }
+  .role b{ color: var(--pink); font-weight:600; }
+  .years{
+    font-size: 13.5px;
+    color: var(--muted);
+    letter-spacing:0.04em;
+    margin: 0 0 20px;
+  }
+  .thesis{
+    font-size: 16px;
+    line-height:1.65;
+    color: var(--text);
+    max-width: 56ch;
+    margin: 0 0 26px;
+  }
+  .thesis i{ color: var(--muted); font-style:italic; }
+  .cta-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .cta{
+    display:inline-flex; align-items:center; gap:8px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration:none;
+    border:1px solid var(--line);
+  }
+  .cta.primary{
+    background: linear-gradient(135deg, var(--indigo), var(--pink));
+    color: #fff;
+    border:none;
+  }
+  .cta.ghost{ color: var(--text); }
+  .cta.ghost:hover{ border-color: var(--pink); color: var(--pink); }
+
+  /* ---------- divider ---------- */
+  .divider{
+    display:flex; align-items:center; justify-content:center; gap:16px;
+    margin: 8px 0 56px;
+    color: var(--gold);
+    opacity:0.85;
+  }
+  .divider .rule{ height:1px; width:140px; background:linear-gradient(to right, transparent, var(--gold), transparent); }
+  .divider .glyph{ font-size:14px; letter-spacing:6px; }
+
+  /* ---------- section shell ---------- */
+  section{ margin-bottom: 64px; }
+  .section-head{ margin-bottom: 28px; }
+  h2.section-title{
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight:500;
+    font-size: 26px;
+    margin: 0 0 6px;
+  }
+  .section-sub{ font-size:13.5px; color:var(--muted); }
+
+  /* ---------- about ---------- */
+  .about-text{ font-size:16px; line-height:1.75; max-width:64ch; color:var(--text); }
+  .about-text b{ color: var(--pink); }
+
+  /* ---------- practice / skills ---------- */
+  .practice-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 700px){ .practice-grid{ grid-template-columns: 1fr; } }
+  .practice-card{
+    background: linear-gradient(var(--ink-panel), var(--ink-panel)), var(--ink-panel2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 20px;
+  }
+  .practice-card h3{
+    font-size: 12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--gold);
+    margin: 0 0 14px;
+    font-weight:600;
+  }
+  .practice-card ul{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:9px; }
+  .practice-card li{ font-size:14.5px; color:var(--text); display:flex; align-items:baseline; gap:8px; }
+  .practice-card li::before{ content:"·"; color:var(--pink); font-size:18px; line-height:0; }
+
+  /* ---------- featured working ---------- */
+  .working-card{
+    background: linear-gradient(var(--ink-panel), var(--ink-panel)), var(--ink-panel2);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow:hidden;
+  }
+  .working-media{
+    display:block;
+    width:100%;
+    border-bottom: 1px solid var(--line);
+    background: var(--ink);
+  }
+  .working-media img{ display:block; width:100%; height:auto; }
+  .working-body{ padding: 26px 26px 28px; }
+  .working-body h3{
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight:500;
+    font-size: 22px;
+    margin: 0 0 10px;
+  }
+  .working-body p{ font-size:14.5px; line-height:1.7; color:var(--text); margin:0 0 18px; max-width:60ch; }
+  .working-tags{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .working-tags span{
+    font-size:11.5px; letter-spacing:0.04em;
+    padding: 5px 11px; border-radius:999px;
+    border:1px solid var(--line); color:var(--muted);
+  }
+
+  /* ---------- contact / footer ---------- */
+  .contact-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  footer{
+    padding: 40px 0 60px;
+    text-align:center;
+    font-size:12px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color: var(--gold);
+    opacity:0.8;
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="hero">
+    <div class="portrait">
+      <div class="portrait-inner">RPC</div>
+    </div>
+    <div>
+      <p class="eyebrow">Quality Engineering</p>
+      <h1 class="name">Raquel Prieto-Canter</h1>
+      <p class="role"><b>Senior QA Engineer</b> — 10+ years</p>
+      <p class="years">Currently at ARA, in a large-scale enterprise Kubernetes environment</p>
+      <p class="thesis">Quality isn't a phase at the end — it's the working, cast early and repeated
+        until it holds. <i>I build and automate test coverage across the whole system, from API to
+        infrastructure, so teams can trust what they ship.</i></p>
+      <div class="cta-row">
+        <a class="cta primary" href="https://www.linkedin.com/in/raprieto/" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="cta ghost" href="https://github.com/raquelaroots" target="_blank" rel="noopener">GitHub</a>
+        <a class="cta ghost" href="#featured">See the proof ↓</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="rule"></div><div class="glyph">☽ ✦ ☾</div><div class="rule"></div></div>
+
+  <section>
+    <div class="section-head">
+      <h2 class="section-title">The Practice</h2>
+      <p class="section-sub">Ten-plus years, three disciplines that overlap more than most job titles admit</p>
+    </div>
+    <p class="about-text" style="margin-bottom:28px;">
+      A shift-left advocate who treats quality as a foundation, not a gate — <b>test strategy and
+      process</b> that scales with a team, <b>automation engineering</b> that actually gets maintained,
+      and enough <b>platform fluency</b> to know what "works on my machine" is hiding.
+    </p>
+    <div class="practice-grid">
+      <div class="practice-card">
+        <h3>Strategy &amp; Process</h3>
+        <ul>
+          <li>Test strategy &amp; planning</li>
+          <li>Test process &amp; management</li>
+          <li>Execution at scale</li>
+          <li>Agile delivery</li>
+        </ul>
+      </div>
+      <div class="practice-card">
+        <h3>Automation &amp; Engineering</h3>
+        <ul>
+          <li>Test automation engineering</li>
+          <li>Playwright</li>
+          <li>TypeScript</li>
+          <li>API testing</li>
+          <li>Scripting</li>
+        </ul>
+      </div>
+      <div class="practice-card">
+        <h3>Platform &amp; Delivery</h3>
+        <ul>
+          <li>Docker</li>
+          <li>Kubernetes (CKA)</li>
+          <li>Helm</li>
+          <li>CI/CD</li>
+          <li>Microservice architecture</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="featured">
+    <div class="section-head">
+      <h2 class="section-title">The Working, Demonstrated</h2>
+      <p class="section-sub">Ritual Ledger — a real app, built to prove the practice, not just claim it</p>
+    </div>
+    <div class="working-card">
+      <div class="working-media">
+        <img src="assets/demo-test-runner.gif" alt="Running the Playwright suite live from the browser's Test Runner tab" loading="lazy">
+      </div>
+      <div class="working-body">
+        <h3>Ritual Ledger</h3>
+        <p>A personal workout tracker where the app is the system under test and the test engineering
+          around it is the actual deliverable: Playwright suites with a Page Object Model, Allure
+          reporting themed and self-hosted in-app, a live in-browser test runner, a full Kubernetes +
+          Helm deployment validated against a real cluster, and pre-commit/pre-push secret-scanning
+          git hooks — CI gates all of it on every PR.</p>
+        <div class="working-tags">
+          <span>Playwright</span><span>Allure</span><span>Docker</span><span>Kubernetes</span>
+          <span>Helm</span><span>GitHub Actions</span><span>Node.js</span>
+        </div>
+        <a class="cta ghost" href="https://github.com/raquelaroots/grimoire-of-strength" target="_blank" rel="noopener">View the repo →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2 class="section-title">Contact</h2>
+    </div>
+    <div class="contact-row">
+      <a class="cta primary" href="https://www.linkedin.com/in/raprieto/" target="_blank" rel="noopener">LinkedIn — /in/raprieto</a>
+      <a class="cta ghost" href="https://github.com/raquelaroots" target="_blank" rel="noopener">GitHub — raquelaroots</a>
+    </div>
+  </section>
+
+  <footer>every assertion, a small spell</footer>
+</div>
+
+</body>
+</html>

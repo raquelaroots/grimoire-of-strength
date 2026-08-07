@@ -12,6 +12,8 @@
 *A witchy workout ledger — and, more to the point, a demonstration of senior QA test
 engineering practice.*
 
+**[🔮 Read my professional portfolio →](https://raquelaroots.github.io/grimoire-of-strength/)**
+
 ---
 
 ## ✦ What this actually is
