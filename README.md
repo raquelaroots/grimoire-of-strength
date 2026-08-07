@@ -9,7 +9,7 @@
 
 **progress · completions · devotion**
 
-*A witchy workout ledger — and, more to the point, a demonstration of senior QA test
+*A way to track my workouts — and, more to the point, a demonstration of senior QA test
 engineering practice.*
 
 **[🔮 Read my professional portfolio →](https://raquelaroots.github.io/grimoire-of-strength/)**
@@ -18,9 +18,8 @@ engineering practice.*
 
 ## ✦ What this actually is
 
-The app underneath is real — a personal Node/Express + SQLite workout tracker its owner
-actually uses. But **the app is the system under test; the test engineering around it is the
-deliverable.** This repo exists to show how I approach quality on a real, working codebase:
+The app underneath is real — a personal Node/Express + SQLite workout tracker that I use. But **the app is the system under test; the test engineering around it is the
+star of the show.** This repo exists to show how I approach quality on a real, working codebase:
 Playwright suites with deliberate structure, a themed and self-hosted Allure report, an
 in-app tool to run test suites live, and a CI pipeline that gates all of it.
 
@@ -103,13 +102,7 @@ Two ways to look at it:
   [README](helm/ritual-ledger/README.md) covering every value and the deliberate tradeoffs made.
 
 **What's deployed:** the app (fixed at `replicas: 1` — `better-sqlite3` runs in WAL mode, a
-single-process, single-writer embedded database, so there's no HPA here, on purpose) behind a
-`ClusterIP` Service; a `CronJob` that runs the full Playwright suite and regenerates the Allure
-report on a schedule, sharing two PVCs with the app so both the SQLite-adjacent run history and
-the generated report persist and stay visible without a redeploy; a `ConfigMap`-mounted plan file
-that live-updates the served Grimoire without a rollout (whole-directory mount, not `subPath` —
-Kubernetes doesn't live-update `subPath`-mounted ConfigMaps); and an optional `Ingress`, off by
-default.
+single-process, single-writer embedded database); a `CronJob` that runs the full Playwright suite and regenerates the Allure report on a schedule, sharing two PVCs with the app so both the SQLite-adjacent run history and the generated report persist and stay visible without a redeploy; a `ConfigMap`-mounted plan file that live-updates the served Grimoire without a rollout; and an optional `Ingress`, off by default.
 
 **No registry yet — build and load locally:**
 ```bash
@@ -127,10 +120,7 @@ curl http://localhost:8080/api/health
 real local [kind](https://kind.sigs.k8s.io/) cluster while building this — `helm lint`, rendered
 output applied for real, the Deployment actually reaching `Ready`, the `CronJob`'s `Job` triggered
 manually and watched through to a completed test run and a regenerated report the app pod then
-served over the shared PVC, and a `helm uninstall` confirmed to keep the data PVCs (they carry
-`helm.sh/resource-policy: keep`, since Helm deletes templated PVCs by default otherwise — a real
-gotcha this process caught, not a hypothetical one). No cluster is kept running for this repo
-day-to-day, so treat the above as a tested recipe, not a live deployment.
+served over the shared PVC, and a `helm uninstall` confirmed to keep the data PVCs. No cluster is kept running for this repo day-to-day, so treat the above as a tested recipe, not a live deployment.
 
 Known, deliberate tradeoffs (documented in depth in the [chart README](helm/ritual-ledger/README.md)):
 single-node-cluster-only `ReadWriteOnce` storage, `readOnlyRootFilesystem` intentionally left
@@ -208,4 +198,4 @@ I'm a senior QA engineer with over 10 years of experience in test planning, exec
 
 ---
 
-<p align="center"><i>✦ so mote it be ✦</i></p>
+<p align="center"><i>✦ every assertion, a small spell ✦</i></p>
