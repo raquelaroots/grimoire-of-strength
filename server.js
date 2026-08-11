@@ -106,9 +106,9 @@ for (const table of EDITABLE_TABLES) {
 }
 
 // ---------------- Home Assistant integration ----------------
-// A dedicated, authenticated surface for external systems (see
-// H:\Repos\homeTech) rather than overloading the generic /api/lifts route
-// above with auth — that route is used unauthenticated by this app's own
+// A dedicated, authenticated surface for external systems, rather than
+// overloading the generic /api/lifts route above with auth — that route
+// is used unauthenticated by this app's own
 // browser frontend, and a public repo can never safely embed a secret in
 // client-side JS to make it "authenticated" too. Reads (workout summary,
 // the grimoire) stay open, matching every other GET route in this app;
