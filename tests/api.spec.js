@@ -125,6 +125,131 @@ test.describe("Ritual Ledger API", () => {
         expect(deleted.status()).toBe(204);
       });
     });
+
+    test("missing required fields return a clean 400, not a raw 500", async ({ request }) => {
+      await feature("Lift Progress");
+      await story("Validation");
+      await severity(Severity.NORMAL);
+
+      // Regression coverage: before validateLift() existed, a missing NOT NULL
+      // column (date/exercise/weight in schema.sql) fell through to an
+      // uncaught better-sqlite3 constraint error — a raw 500 with a stack
+      // trace, not a usable error response.
+      const res = await step("POST with no exercise or weight", () =>
+        request.post("/api/lifts", { data: { date: "2026-01-01" } })
+      );
+      expect(res.status()).toBe(400);
+      const body = await res.json();
+      expect(body.details).toEqual(
+        expect.arrayContaining([expect.stringContaining("exercise"), expect.stringContaining("weight")])
+      );
+    });
+  });
+
+  test.describe("Home Assistant Integration", () => {
+    // Fixed API key set for every test-invocation path via playwright.config.js's
+    // webServer.env (RITUAL_HA_API_KEY) — see that file's comment for why.
+    const HA_KEY = "test-key-for-ci";
+
+    test("POST /api/ha/lifts requires a valid API key", async ({ request }) => {
+      await feature("Home Assistant Integration");
+      await story("Authenticated lift ingestion");
+      await severity(Severity.CRITICAL);
+
+      await step("no Authorization header is rejected", async () => {
+        const res = await request.post("/api/ha/lifts", {
+          data: { date: "2026-01-01", exercise: "Overhead Press", weight: 20 },
+        });
+        expect(res.status()).toBe(401);
+      });
+
+      await step("wrong key is rejected", async () => {
+        const res = await request.post("/api/ha/lifts", {
+          headers: { Authorization: "Bearer not-the-right-key" },
+          data: { date: "2026-01-01", exercise: "Overhead Press", weight: 20 },
+        });
+        expect(res.status()).toBe(401);
+      });
+
+      const record = await step("correct key + valid payload succeeds", async () => {
+        const res = await request.post("/api/ha/lifts", {
+          headers: { Authorization: `Bearer ${HA_KEY}` },
+          data: { date: "2026-01-01", exercise: "Overhead Press", weight: 20, sets: 3, reps: 8 },
+        });
+        expect(res.status()).toBe(201);
+        const body = await res.json();
+        expect(body.id).toBeTruthy();
+        expect(body.exercise).toBe("Overhead Press");
+        return body;
+      });
+
+      await step("clean up", async () => {
+        await request.delete(`/api/lifts/${record.id}`);
+      });
+    });
+
+    test("POST /api/ha/lifts validates required fields even with a correct key", async ({ request }) => {
+      await feature("Home Assistant Integration");
+      await story("Validation");
+      await severity(Severity.NORMAL);
+
+      const res = await step("missing exercise is rejected with 400, not a raw 500", () =>
+        request.post("/api/ha/lifts", {
+          headers: { Authorization: `Bearer ${HA_KEY}` },
+          data: { date: "2026-01-01", weight: 20 },
+        })
+      );
+      expect(res.status()).toBe(400);
+      const body = await res.json();
+      expect(body.details).toEqual(expect.arrayContaining([expect.stringContaining("exercise")]));
+    });
+
+    test("GET /api/ha/workout-summary reflects the same suggestion the dashboard shows", async ({ request }) => {
+      await feature("Home Assistant Integration");
+      await story("Workout summary");
+      await severity(Severity.CRITICAL);
+
+      const currentCycle = await step("compute expected cycle from ISO week parity", () => {
+        function isoWeekNumber(d) {
+          const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+          const dayNum = (date.getUTCDay() + 6) % 7;
+          date.setUTCDate(date.getUTCDate() - dayNum + 3);
+          const firstThursday = new Date(Date.UTC(date.getUTCFullYear(), 0, 4));
+          return 1 + Math.round(((date - firstThursday) / 86400000 - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7);
+        }
+        const wk = isoWeekNumber(new Date());
+        return wk % 2 === 0 ? "B" : "A";
+      });
+
+      await step("with no completions, response has the expected shape", async () => {
+        const summary = await (await request.get("/api/ha/workout-summary")).json();
+        expect(summary).toHaveProperty("cycle");
+        expect(summary).toHaveProperty("moonPhase");
+        expect(summary).toHaveProperty("suggestedCode");
+        expect(summary).toHaveProperty("suggestedLabel");
+        expect(summary).toHaveProperty("streak");
+        expect(summary).toHaveProperty("totalRituals");
+        expect(summary.cycle).toBe(currentCycle);
+      });
+
+      const completion = await step(`log a "1${currentCycle}" completion for this week`, async () => {
+        const created = await request.post("/api/completions", {
+          data: { date: new Date().toISOString().slice(0, 10), workout: `1${currentCycle}`, duration: 20 },
+        });
+        return created.json();
+      });
+
+      await step("the suggestion flips to workout type 2 for the same cycle", async () => {
+        const summary = await (await request.get("/api/ha/workout-summary")).json();
+        expect(summary.suggestedCode).toBe(`2${currentCycle}`);
+        expect(summary.suggestedLabel).toContain("Workout 2");
+        expect(summary.streak).toBeGreaterThanOrEqual(1);
+      });
+
+      await step("clean up", async () => {
+        await request.delete(`/api/completions/${completion.id}`);
+      });
+    });
   });
 
   test.describe("Measurements", () => {

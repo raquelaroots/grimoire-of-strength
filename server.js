@@ -2,10 +2,13 @@
 
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const express = require("express");
 const db = require("./src/db");
 const { parsePlanFile } = require("./src/planParser");
 const { regenerate: regeneratePlan, PLAN_PATH } = require("./src/generatePlan");
+const { validateLift } = require("./src/liftValidation");
+const { computeWorkoutSummary } = require("./src/workoutSummary");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -74,6 +77,15 @@ app.post("/api/plan/regenerate", (req, res) => {
 
 for (const table of MUTABLE_TABLES) {
   app.post(`/api/${table}`, (req, res) => {
+    // lifts is the one table with NOT NULL columns beyond `date` (exercise,
+    // weight) that a client can plausibly omit — validate it specifically
+    // rather than letting a missing field fall through to an uncaught
+    // better-sqlite3 constraint error (a raw 500). Shared with
+    // POST /api/ha/lifts below so there's one source of truth.
+    if (table === "lifts") {
+      const errors = validateLift(req.body || {});
+      if (errors.length) return res.status(400).json({ error: "validation failed", details: errors });
+    }
     const record = db.insert(table, req.body || {});
     res.status(201).json(record);
   });
@@ -92,6 +104,42 @@ for (const table of EDITABLE_TABLES) {
     res.json(record);
   });
 }
+
+// ---------------- Home Assistant integration ----------------
+// A dedicated, authenticated surface for external systems, rather than
+// overloading the generic /api/lifts route above with auth — that route
+// is used unauthenticated by this app's own
+// browser frontend, and a public repo can never safely embed a secret in
+// client-side JS to make it "authenticated" too. Reads (workout summary,
+// the grimoire) stay open, matching every other GET route in this app;
+// only the write route requires a key.
+
+function requireHaApiKey(req, res, next) {
+  const expected = process.env.RITUAL_HA_API_KEY;
+  if (!expected) {
+    // Fail closed: an unset key means "integration not configured," never
+    // "allow the request through unauthenticated."
+    return res.status(503).json({ error: "Home Assistant integration is not configured" });
+  }
+  const match = (req.get("authorization") || "").match(/^Bearer (.+)$/);
+  const provided = match ? match[1] : "";
+  const expectedBuf = Buffer.from(expected);
+  const providedBuf = Buffer.from(provided);
+  const valid = expectedBuf.length === providedBuf.length && crypto.timingSafeEqual(expectedBuf, providedBuf);
+  if (!valid) return res.status(401).json({ error: "unauthorized" });
+  next();
+}
+
+app.post("/api/ha/lifts", requireHaApiKey, (req, res) => {
+  const errors = validateLift(req.body || {});
+  if (errors.length) return res.status(400).json({ error: "validation failed", details: errors });
+  const record = db.insert("lifts", req.body || {});
+  res.status(201).json(record);
+});
+
+app.get("/api/ha/workout-summary", (req, res) => {
+  res.json(computeWorkoutSummary(db.list("completions")));
+});
 
 // Dev-only feature: lets the app run its own Playwright suite and watch it
 // live. Never unconditionally require()'d — the production Docker image

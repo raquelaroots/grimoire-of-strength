@@ -36,6 +36,11 @@ module.exports = defineConfig({
     env: {
       PORT: "3100",
       RITUAL_DB_PATH: "data/.playwright-test.sqlite",
+      // Fixed test key so every test-invocation path (local, the in-app Test
+      // Runner, CI, the k8s CronJob) can exercise the authenticated
+      // POST /api/ha/lifts route deterministically, independent of whatever
+      // (if anything) is set in the ambient environment.
+      RITUAL_HA_API_KEY: "test-key-for-ci",
     },
     url: "http://localhost:3100/api/health",
     reuseExistingServer: !process.env.CI,

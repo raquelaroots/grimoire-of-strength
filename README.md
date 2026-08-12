@@ -94,6 +94,37 @@ project.
 
 ---
 
+## ✦ Home Assistant Integration
+
+A dedicated `/api/ha/*` surface lets an external system — Home Assistant, in my case — log lifts
+and read a workout summary, kept separate from the app's own unauthenticated browser-facing
+routes so a public repo never needs to embed a secret in client-side JS.
+
+- **`POST /api/ha/lifts`** — create a lift entry. Requires `Authorization: Bearer
+  <RITUAL_HA_API_KEY>`, compared in constant time (`crypto.timingSafeEqual`); the route fails
+  closed (`503`) if the key isn't configured, rather than silently allowing unauthenticated
+  writes. Payloads are validated by the same [`src/liftValidation.js`](src/liftValidation.js)
+  the app's own `POST /api/lifts` uses, so a malformed request gets a clean `400`, not a raw 500.
+- **`GET /api/ha/workout-summary`** — unauthenticated, matching every other read route in the
+  app. Returns the same "Cast Today's Working" suggestion the dashboard itself computes — a
+  faithful backend port ([`src/workoutSummary.js`](src/workoutSummary.js)) of the frontend's own
+  algorithm, not a reimplementation that could quietly drift from what the UI shows.
+- The Grimoire (`/grimoire-of-strength.html`) has no framing restriction, so it can be embedded
+  directly in a dashboard `iframe` card.
+
+```bash
+curl -X POST http://localhost:3000/api/ha/lifts \
+  -H "Authorization: Bearer $RITUAL_HA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"exercise":"Squat","weight":135,"sets":3,"reps":5}'
+```
+
+Covered by [`tests/api.spec.js`](tests/api.spec.js)'s "Home Assistant Integration" suite: the
+auth round trip, validation-with-a-valid-key, and a regression test proving the workout-summary
+suggestion actually flips after a new completion, not just that it returns *something*.
+
+---
+
 ## ✦ Tech Stack
 
 **App:** Node.js, Express, `better-sqlite3`, vanilla JS (no frontend framework) · **Testing:**
